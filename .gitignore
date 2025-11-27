@@ -212,3 +212,4 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 /app/.idea
+/app/.venv
