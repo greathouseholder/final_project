@@ -1,26 +1,17 @@
-import aiogram
 import asyncio
-
 from aiogram import Bot, Dispatcher
-from aiogram.filters import CommandStart
-from aiogram.types import Message, FSInputFile
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
+
 from config import TOKEN
+from bot_app.handlers import router
 
-bot = Bot(token=TOKEN)
-dp = Dispatcher()
-
-@dp.message(CommandStart())
-async def cmd_start(message: Message):
-    await bot.send_audio(
-            chat_id=message.chat.id,
-            audio=FSInputFile("audio/track.m4a"),
-            caption="Кто прочитал тот лох",
-            performer="Unknown",
-            title="Better Call Saul"
-        )
-    
+bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+dp = Dispatcher()    
 
 async def main():
+    dp.include_router(router)
+    await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
 if __name__ == '__main__':
