@@ -73,19 +73,20 @@
 {
   "databases": [
     {
-      "id": "db_abc123",
+      "database_id": "db_abc123",
       "name": "Юридические документы",
       "document_count": 150,
       "created_at": "2024-01-15T10:30:00Z"
     },
     {
-      "id": "db_def456",
+      "database_id": "db_def456",
       "name": "Технические документы", 
       "document_count": 80,
       "created_at": "2024-01-14T09:15:00Z"
     }
   ]
 }
+```
 
 ### (ADMIN) 4. Создание db
 **POST** `/api/v1/admin/databases`
@@ -121,6 +122,7 @@
 // Status: 200 OK
 {
   "database_id": "db_abc123",
+  "name": "ABC",
   "status": "deleted",
   "deleted_documents": 42,
   "deleted_at": "2024-01-15T11:00:00Z"
@@ -132,7 +134,6 @@
 
 // Status: 404 Not found
 {"detail": "База данных не найдена"}
-```
 
 // Ошибки
 // Status: 403 Forbidden
