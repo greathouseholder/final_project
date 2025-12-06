@@ -28,8 +28,8 @@ class LoadingUC:
             chunk_overlap=request.chunk_overlap
         )
         embedded_chunks = [
-            self._embedder.embed_document(document).value for document in split_document
-        ]
+            self._embedder.embed_document(document).value
+            for document in split_document]
         for batch_index in range(0, len(embedded_chunks), 100):
             await self._vdb_gateway.bulk_add(
                 embedded_chunks[batch_index:batch_index+100],

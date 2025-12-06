@@ -15,7 +15,8 @@ class FridaEmbedder(EmbedderInterface):
             try:
                 self._model = SentenceTransformer(self.model_name)
             except Exception as e:
-                raise ValueError(f"Failed to load model {self.model_name}: {str(e)}")
+                raise ValueError(
+                    f"Failed to load model {self.model_name}: {str(e)}")
         return self._model
 
     def embed(self, text: str, is_query: bool = False) -> Result[list[float], str]:
@@ -27,7 +28,9 @@ class FridaEmbedder(EmbedderInterface):
 
         try:
             model = self._get_model()
-            embedding = model.encode([prefixed_text], normalize_embeddings=True)
+            embedding = model.encode(
+                [prefixed_text],
+                normalize_embeddings=True)
             vector = embedding[0].tolist()
             return Result.Ok(vector)
         except Exception as e:

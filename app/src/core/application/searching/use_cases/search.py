@@ -49,6 +49,3 @@ class SearchUC:
                 metadata=doc.metadata
             ) for doc in relevant_documents.value
         ]
-
-
-
