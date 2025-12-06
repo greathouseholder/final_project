@@ -1,7 +1,27 @@
 import uvicorn
-from fastapi import FastAPI
 
-app = FastAPI()
+from fastapi import FastAPI
+from dishka.integrations.fastapi import setup_dishka
+
+from src.api import routers, container
+# from src.api.di import container
+
+
+app = FastAPI(
+    title="RAG Telegram Bot for Lawyers API"
+)
+
+app.include_router(routers)
+
+
+@app.get("/health")
+async def health_check():
+    """Проверка работоспособности сервиса"""
+    return {"status": "ok"}
+
+
+setup_dishka(container, app)
+
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", reload=True)
+    uvicorn.run(app, host="127.0.0.1", port=8000)
