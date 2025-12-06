@@ -1,7 +1,10 @@
 import uvicorn
 
 from fastapi import FastAPI
-from src.api import routers
+from dishka.integrations.fastapi import setup_dishka
+
+from src.api import routers, container
+# from src.api.di import container
 
 
 app = FastAPI(
@@ -15,6 +18,9 @@ app.include_router(routers)
 async def health_check():
     """Проверка работоспособности сервиса"""
     return {"status": "ok"}
+
+
+setup_dishka(container, app)
 
 
 if __name__ == "__main__":
