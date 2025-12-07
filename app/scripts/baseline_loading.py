@@ -15,8 +15,9 @@ async def baseline_loading():
     #     vectors_config=models.VectorParams(size=768, distance=Distance.COSINE)
     # )
     docs = convert_to_documents(websites)
-    await loading(docs, BertEncoder(), 'baseline')
+    await loading(docs, BertEncoder(), "baseline")
     # asyncio.run(delete_specific_collection('baseline'))
+
 
 async def baseline_different_emb():
     # await create_specific_collection(
@@ -24,10 +25,12 @@ async def baseline_different_emb():
     #     vectors_config=models.VectorParams(size=1024, distance=Distance.COSINE)
     # )
     docs = convert_to_documents(websites)
-    await loading(docs, BGEEmbedder(), 'baseline_2', chunk_size=200, chunk_overlap=50)
+    await loading(docs, BGEEmbedder(), "baseline_2", chunk_size=200, chunk_overlap=50)
     # asyncio.run(delete_specific_collection('baseline'))
 
+
 bge_config = models.VectorParams(size=1024, distance=Distance.COSINE)
+
 
 async def main():
     # await create_specific_collection(collection_name='baseline_3', vectors_config=bge_config)
@@ -43,5 +46,6 @@ async def main():
     # await loading(docs, emb, 'baseline_6', chunk_size=500, chunk_overlap=100)
     # await loading(docs, emb, 'baseline_7', chunk_size=200, chunk_overlap=100)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     asyncio.run(main())

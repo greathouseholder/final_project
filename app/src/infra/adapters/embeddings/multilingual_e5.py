@@ -43,9 +43,7 @@ class MultilingualE5Embedder(EmbedderInterface):
         vector = embed_result.unwrap()
         try:
             vectorised_doc = VectorisedDocument(
-                text=document.text,
-                metadata=document.metadata,
-                embedding=vector
+                text=document.text, metadata=document.metadata, embedding=vector
             )
             return Result.Ok(vectorised_doc)
         except Exception as e:

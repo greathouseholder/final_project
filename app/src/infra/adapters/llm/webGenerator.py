@@ -4,6 +4,7 @@ from .interface import LLMInterface
 from src.shared.config import config
 from src.core.application.generation.schemas.answer import Message, LLMResponse
 
+
 class LLMClient(LLMInterface):
     def __init__(self):
         self.api_key = config.LLM_API_KEY
@@ -17,15 +18,12 @@ class LLMClient(LLMInterface):
         # например как это для openai будет
         adapted_history = []
         for msg in history:
-            adapted_history.append({
-                "role": msg.role.value,
-                "content": msg.content
-            })
+            adapted_history.append({"role": msg.role.value, "content": msg.content})
         return adapted_history
 
     @staticmethod
     def _create_response(api_key: str, model: str, history: Any) -> LLMResponse:
-        #например как это будет для openai
+        # например как это будет для openai
         openai.api_key = api_key
         response = openai.ChatCompletion.create(
             model=model,

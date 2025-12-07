@@ -1,5 +1,27 @@
-FROM qdrant/qdrant:latest
+FROM python:3.11-slim-bookworm
 
-WORKDIR /qdrant
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
-EXPOSE 6333 6334
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV UV_SYSTEM_PYTHON=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+COPY pyproject.toml uv.lock ./
+
+RUN uv sync --frozen --no-cache
+
+COPY src ./src
+COPY data ./data
+COPY scripts ./scripts
+COPY main.py .
+
+EXPOSE 8000
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

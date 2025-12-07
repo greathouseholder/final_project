@@ -3,7 +3,7 @@ import torch
 from typing import List
 from result import Result, Ok, Err
 
-from src.core.domain.document import VectorisedDocument, ExtendedVectorisedDocument
+from src.core.domain.document import ExtendedVectorisedDocument
 from .interface import RerankerInterface
 
 
@@ -21,12 +21,8 @@ class BGEReranker(RerankerInterface):
         return self._model
 
     def rerank(
-        self,
-        query: str,
-        documents: List[ExtendedVectorisedDocument],
-        top_k: int = 5
+        self, query: str, documents: List[ExtendedVectorisedDocument], top_k: int = 5
     ) -> Result[List[ExtendedVectorisedDocument], str]:
-
         top_k = min(top_k, len(documents))
 
         try:

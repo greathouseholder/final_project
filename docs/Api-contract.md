@@ -1,0 +1,250 @@
+# Документация API для Telegram RAG-бота
+
+## 🚀 Быстрый старт (ещё не реализовано, лол)
+1. **URL API**: `http://localhost:8000` (локально) / `https://пока-не-придумали.ru` (продакшен)
+2. **Документация Swagger**: `http://localhost:8000/docs`
+
+## 📊 Спецификация эндпоинтов
+
+### 🤖 1. RAG-запрос (Основной сценарий)
+**POST** `/api/v1/rag/query`
+**Content-Type:** `application/json`
+   ```json
+   // Запрос (бот -> сервер)
+{
+  "user_id": 123456789,
+  "query_text": "Что будет если взорвать ежа?",
+  "database_id": "db_federal_hedgehogs_laws"
+}
+
+// Ответ (успех) (сервер -> бот)
+// Status: 200 OK
+{
+  "answer": "В соответствие с УК РФ за подрыв ежа полагается...",
+  "sources": [
+         {
+            "title": "ФЗ №123",
+            "url": "https://consultant.ru/bla-bla-bla",
+            "relevance": 0.95 // число от 0.0 до 1.0
+         }
+  ]  
+}
+
+// Ответ (ошибка) (сервер -> бот)
+// Status: 404 Not found
+{"detail": "База данных не найдена"}
+```
+
+### 🔍 2. Поиск по документам
+**POST** `/api/v1/search/documents`
+**Content-Type:** `application/json`
+```json
+// Запрос (бот -> сервер)
+{
+  "user_id": 123456789,
+  "query_text": "Отмывание денег и легализация дохода...",
+  "database_id": "db_legal_docs"
+}
+
+// Ответ
+// Status: 200 OK
+{
+  "documents": [
+    {
+      "title": "Отчёт Росфинмониторинга",
+      "url": "rfmt.pdf",
+      "relevance": 0.95 // число от 0.0 до 1.0
+    }
+  ]
+}
+
+// Ответ (ошибка) (сервер -> бот)
+// Status: 404 Not found
+{"detail": "База данных не найдена"}
+```
+
+### 3. Просмотр доступных db
+**GET** **/api/v1/search/databases**
+прим.: при запуске с пользовательской панели выводятся только названия, при запуске с админ панели -- txt-файл с содержанием json'а.
+Доступ к команде с обеих панелей имеют все пользователи.
+```json
+// Ответ
+// Status: 200 OK
+{
+  "databases": [
+    {
+      "database_id": "db_abc123",
+      "name": "Юридические документы",
+      "document_count": 150,
+      "created_at": "2024-01-15T10:30:00Z"
+    },
+    {
+      "database_id": "db_def456",
+      "name": "Технические документы", 
+      "document_count": 80,
+      "created_at": "2024-01-14T09:15:00Z"
+    }
+  ]
+}
+```
+
+### (ADMIN) 4. Создание db
+**POST** `/api/v1/admin/databases`
+**Content-Type:** `application/json`
+```json
+// Запрос (бот -> сервер)
+{
+  "user_id": 123456789,
+  "name": "Архив анекдотов про порутчика Ржевского"
+}
+
+// Ответ
+// Status: 201 Created
+{
+  "database_id": "id_bla-bla-123",
+  "name": "Архив анекдотов про порутчика Ржевского",
+  "status": "created",
+  "created_at": "2024-01-15T10:30:00Z"
+}
+
+// Ошибки
+// Status: 403 Forbidden
+{"detail": "У вас нет прав на совершение этого действия"}
+
+// Status: 409 Conflict
+{"detail": "База с таким именем уже существует"}
+```
+
+### (ADMIN) 5. Удаление db
+**DELETE** `/api/v1/admin/databases/db_abc123?user_id=123456789`
+```json
+// Ответ (просто пример)
+// Status: 200 OK
+{
+  "database_id": "db_abc123",
+  "name": "ABC",
+  "status": "deleted",
+  "deleted_documents": 42,
+  "deleted_at": "2024-01-15T11:00:00Z"
+}
+
+// Ошибки
+// Status: 403 Forbidden
+{"detail": "У вас нет прав на совершение этого действия"}
+
+// Status: 404 Not found
+{"detail": "База данных не найдена"}
+
+// Ошибки
+// Status: 403 Forbidden
+{"detail": "У вас нет прав на совершение этого действия"}
+```
+
+### (ADMIN) 6. Добавление документа в db
+**POST** `/api/v1/admin/databases/{database_id}/documents`
+**Content-Type:** `multipart/form-data`
+
+Поля формы:
+- user_id: 123456789
+- archive: [файл.zip]
+
+```json
+// Ответ (просто пример)
+// Status: 200 OK
+{
+  "database_id": "db_abc123",
+  "processed_files": 15,
+  "failed_files": 2,
+  "errors": [
+    {"file": "corrupted.pdf", "reason": "Невозможно прочитать PDF"},
+    {"file": "huge_file.mp4", "reason": "Неподдерживаемый формат"}
+  ],
+  "total_size_mb": 25.7
+}
+
+// Ошибки
+// Status: 403 Forbidden
+{"detail": "У вас нет прав на совершение этого действия"}
+
+// Status: 422 Unprocessable Entity
+{"detail": "Архив не содержит поддерживаемых документов"}
+```
+
+## Прочие ошибки
+```json
+// Когда не хватает обязательных полей:
+// Status: 400 Bad Request
+{
+  "detail": "Обязательные поля отсутствуют: user_id, database_id"
+}
+
+// Когда JSON некорректный:
+// Status: 400 Bad Request
+{
+  "detail": "Невалидный JSON в теле запроса"
+}
+
+// Когда user_id не число:
+// Status: 400 Bad Request
+{
+  "detail": "user_id должен быть числом"
+}
+
+// Для RAG/search запросов:
+// Status: 422 Unprocessable Entity
+{
+  "detail": "query_text не может быть пустым"
+}
+
+// Для создания базы:
+// Status: 422 Unprocessable Entity  
+{
+  "detail": "Имя базы должно содержать от 3 до 100 символов"
+}
+
+// Для загрузки файлов:
+// Status: 422 Unprocessable Entity
+{
+  "detail": "Файл должен быть в формате ZIP, PDF, TXT или DOCX"
+}
+
+// Когда сервер умер:
+// Status: 500 Internal Server Error
+{"detail": "Внутренняя ошибка сервера"}
+```
+
+
+## 🚨 Ошибки и статусы
+| Статус | Когда возникает |
+|--------|-----------------|
+| 200 | Успешный запрос |
+| 400 | Неверный формат данных |
+| 403 | Нет прав (не админ) |
+| 404 | База данных не найдена |
+| 413 | Файл слишком большой |
+| 422 | Ошибка валидации |
+| 500 | Серверная ошибка |
+| 503 | Сервис временно недоступен |
+
+## 📝 Дополнительные примеры ответов
+
+### Пустые результаты (НЕ ошибка!)
+```json
+// RAG-запрос без найденных источников:
+// Status: 200 OK
+{
+  "answer": "По вашему запросу ничего не найдено",
+  "sources": []
+}
+
+// Поиск без документов:
+// Status: 200 OK  
+{
+  "documents": []
+}
+
+// У админа нет баз:
+// Status: 200 OK
+{
+  "databases": []
+}
