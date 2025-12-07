@@ -6,4 +6,6 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "aiogram>=3.0.0",
+    "SQLAlchemy>=2.0",
+    "aiosqlite>=0.20"
 ]
