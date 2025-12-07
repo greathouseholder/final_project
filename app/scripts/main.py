@@ -9,7 +9,7 @@ from scripts.searching_baseline import mark_all_questions
 from src.infra.adapters.embeddings.bge import BGEEmbedder
 
 bge_config = models.VectorParams(size=1024, distance=Distance.COSINE)
-collection = 'baseline'
+collection = "baseline"
 import os
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -30,5 +30,5 @@ async def deleting():
     await delete_specific_collection(collection_name=collection)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(main())

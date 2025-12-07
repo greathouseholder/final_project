@@ -11,10 +11,7 @@ from src.shared.config import config
 class OpenAIClient(LLMInterface):
     def __init__(self):
         self.api_key = config.LLM_API_KEY
-        self.client = openai.AsyncOpenAI(
-            base_url="https://api.llm7.io/v1",
-            api_key=self.api_key
-        )
+        self.client = openai.AsyncOpenAI(base_url="https://api.llm7.io/v1", api_key=self.api_key)
 
     def generate(self, model: str, history: List[Message]) -> LLMResponse:
         pass
@@ -26,7 +23,7 @@ class OpenAIClient(LLMInterface):
                 model=model,
                 messages=[{"role": "user", "content": query}],
                 temperature=0.5,
-                max_tokens=100
+                max_tokens=100,
             )
             return response.choices[0].message.content.strip()
         except Exception as e:

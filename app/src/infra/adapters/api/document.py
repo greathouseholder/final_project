@@ -4,7 +4,7 @@ from src.core.domain.document import ExtendedVectorisedDocument
 
 def get_api_do_entity(doc: ExtendedVectorisedDocument) -> Document:
     return Document(
-        title=doc.metadata.get('title', ''),
-        revelance=doc.metadata['rerank_score'],
-        url=doc.metadata.get('url')
+        title=doc.metadata.get("title", ""),
+        revelance=doc.metadata["rerank_score"],
+        url=doc.metadata.get("url"),
     )

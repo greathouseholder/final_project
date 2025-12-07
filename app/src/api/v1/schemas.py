@@ -1,10 +1,11 @@
 """
-TODO: 
+TODO:
     1. Подумать, тут ли этот документ создан
     2. Поставить везде необходимые ограничения
     3. Уточнить про database_id
     4. Уточнить про relevance
 """
+
 from typing import Annotated, Optional, List
 from datetime import datetime
 from enum import StrEnum
@@ -13,6 +14,7 @@ from pydantic import BaseModel, Field, PositiveInt, NonNegativeInt, AnyUrl, NonN
 
 class Status(StrEnum):
     """Status value"""
+
     CREATED = "created"
     DELETED = "deleted"
 

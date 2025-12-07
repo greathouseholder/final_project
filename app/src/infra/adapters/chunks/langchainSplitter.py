@@ -6,18 +6,10 @@ from src.infra.adapters.documents.langchain import LangchainAdapter
 
 
 class LangChainSplitter(ChunkAdapterInterface):
-    def __init__(
-            self,
-            langchain_adapter: LangchainAdapter
-    ):
+    def __init__(self, langchain_adapter: LangchainAdapter):
         self._langchain_adapter = langchain_adapter
 
-    def split(
-            self,
-            text: CoreDocument,
-            chunk_size=300,
-            chunk_overlap=100
-    ) -> list[CoreDocument]:
+    def split(self, text: CoreDocument, chunk_size=300, chunk_overlap=100) -> list[CoreDocument]:
         document = self._langchain_adapter.to_langchain(text)
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,

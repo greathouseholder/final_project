@@ -8,9 +8,9 @@ from src.infra.adapters.embeddings.interface import EmbedderInterface
 
 class BertEncoder(EmbedderInterface):
     def __init__(self):
-        self.tokenizer = BertTokenizer.from_pretrained('DeepPavlov/rubert-base-cased')
+        self.tokenizer = BertTokenizer.from_pretrained("DeepPavlov/rubert-base-cased")
         self.device = torch.device("cpu")
-        self.model = BertModel.from_pretrained('DeepPavlov/rubert-base-cased').to(self.device)
+        self.model = BertModel.from_pretrained("DeepPavlov/rubert-base-cased").to(self.device)
         self.model.eval()
 
     def embed(self, text: str) -> Result[list[float], str]:
@@ -18,11 +18,7 @@ class BertEncoder(EmbedderInterface):
             return Err("Text is empty or whitespace")
         try:
             inputs = self.tokenizer(
-                text,
-                return_tensors='pt',
-                padding=True,
-                truncation=True,
-                max_length=512
+                text, return_tensors="pt", padding=True, truncation=True, max_length=512
             ).to(self.device)
             with torch.no_grad():
                 outputs = self.model(**inputs)
@@ -37,4 +33,8 @@ class BertEncoder(EmbedderInterface):
 
     def embed_document(self, document: CoreDocument) -> Result[VectorisedDocument, str]:
         embedding = self.embed(document.text)
-        return Ok(VectorisedDocument(text=document.text, metadata=document.metadata, embedding=embedding.value))
+        return Ok(
+            VectorisedDocument(
+                text=document.text, metadata=document.metadata, embedding=embedding.value
+            )
+        )
