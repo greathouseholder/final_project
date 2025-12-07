@@ -6,10 +6,11 @@ TODO:
     4. Уточнить про relevance
 """
 
-from typing import Annotated, Optional, List
 from datetime import datetime
 from enum import StrEnum
-from pydantic import BaseModel, Field, PositiveInt, NonNegativeInt, AnyUrl, NonNegativeFloat
+from typing import List, Optional
+
+from pydantic import AnyUrl, BaseModel, Field, NonNegativeFloat, NonNegativeInt, PositiveInt
 
 
 class Status(StrEnum):
