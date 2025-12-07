@@ -15,33 +15,31 @@ from src.infra.adapters.validation.validate_preprocessor import ValidatorPreproc
 from src.infra.adapters.vdb.qdrantGateway import QdrantGateway
 
 uc = SearchUC(
-    vdb_gateway=QdrantGateway(client=AsyncQdrantClient(host='localhost', port=6333)),
+    vdb_gateway=QdrantGateway(client=AsyncQdrantClient(host="localhost", port=6333)),
     embedder=BGEEmbedder(),
     llm_adapter=LLMPreprocessor(
-        client=OpenAIClient(),
-        prompter=JinjaPrompter(),
-        validator=ValidatorPreprocessing()
+        client=OpenAIClient(), prompter=JinjaPrompter(), validator=ValidatorPreprocessing()
     ),
-    reranker=BGEReranker()
+    reranker=BGEReranker(),
 )
 
-questions = pd.read_csv('../data/questions_clean.csv')
+questions = pd.read_csv("../data/questions_clean.csv")
+
 
 async def search_baseline(query: str, collection: str):
     response = await uc.execute(
-        request=SearchRequest(
-            query=query,
-            collection_name=collection,
-            model='deepseek-r1'
-        )
+        request=SearchRequest(query=query, collection_name=collection, model="deepseek-r1")
     )
     return response
 
+
 async def mark_all_questions(collection: str):
     documents = []
-    for index, row in tqdm_asyncio(questions.iterrows(), total=len(questions), desc="Отвечаем на вопросы"):
-        response = await search_baseline(row['query'], collection)
-        documents.append([res.metadata.get('web_id') for res in response])
+    for index, row in tqdm_asyncio(
+        questions.iterrows(), total=len(questions), desc="Отвечаем на вопросы"
+    ):
+        response = await search_baseline(row["query"], collection)
+        documents.append([res.metadata.get("web_id") for res in response])
 
-    questions['web_ids'] = documents + [[] for _ in range(questions.shape[0] - len(documents))]
-    questions.to_csv('../data/questions_marked.csv', index=False)
+    questions["web_ids"] = documents + [[] for _ in range(questions.shape[0] - len(documents))]
+    questions.to_csv("../data/questions_marked.csv", index=False)

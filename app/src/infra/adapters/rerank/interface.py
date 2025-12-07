@@ -8,10 +8,7 @@ from src.core.domain.document import VectorisedDocument
 class RerankerInterface(ABC):
     @abstractmethod
     def rerank(
-        self,
-        query: str,
-        documents: List[VectorisedDocument],
-        top_k: int = 5
+        self, query: str, documents: List[VectorisedDocument], top_k: int = 5
     ) -> Result[List[VectorisedDocument], str]:
         """
         Переранжирует список документов для запроса.

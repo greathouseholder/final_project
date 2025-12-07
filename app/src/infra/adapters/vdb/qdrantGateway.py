@@ -8,7 +8,7 @@ from src.infra.adapters.vdb import VectorDBInterface
 
 
 class QdrantGateway(VectorDBInterface):
-    __slots__ = ("_client", )
+    __slots__ = ("_client",)
 
     def __init__(self, client: AsyncQdrantClient):
         self._client = client
@@ -16,13 +16,11 @@ class QdrantGateway(VectorDBInterface):
     @staticmethod
     def get_payload(document: VectorisedDocument) -> dict:
         payload = document.metadata
-        payload['text'] = document.text
+        payload["text"] = document.text
         return payload
 
     async def add(
-            self,
-            document: VectorisedDocument,
-            collection_name: str = 'baseline'
+        self, document: VectorisedDocument, collection_name: str = "baseline"
     ) -> Result[str, str]:
         res = await self._client.upsert(
             collection_name=collection_name,
@@ -30,17 +28,15 @@ class QdrantGateway(VectorDBInterface):
                 models.PointStruct(
                     id=str(uuid.uuid4()),
                     payload=self.get_payload(document),
-                    vector=document.embedding
+                    vector=document.embedding,
                 ),
             ],
         )
 
-        return Ok(res) if res.status == 'completed' else Err(res)
+        return Ok(res) if res.status == "completed" else Err(res)
 
     async def bulk_add(
-            self,
-            documents: list[VectorisedDocument],
-            collection_name: str = 'baseline'
+        self, documents: list[VectorisedDocument], collection_name: str = "baseline"
     ) -> Result[str, str]:
         res = await self._client.upsert(
             collection_name=collection_name,
@@ -48,33 +44,28 @@ class QdrantGateway(VectorDBInterface):
                 models.PointStruct(
                     id=str(uuid.uuid4()),
                     payload=self.get_payload(document),
-                    vector=document.embedding
+                    vector=document.embedding,
                 )
                 for document in documents
             ],
         )
 
-        return Ok(res) if res.status == 'completed' else Err(res)
+        return Ok(res) if res.status == "completed" else Err(res)
 
     async def search(
-            self,
-            embedding: list[float],
-            collection_name: str = 'baseline'
+        self, embedding: list[float], collection_name: str = "baseline"
     ) -> List[ExtendedVectorisedDocument]:
         response = await self._client.search(
-            collection_name=collection_name,
-            query_vector=embedding,
-            limit=30,
-            with_vectors=True
+            collection_name=collection_name, query_vector=embedding, limit=30, with_vectors=True
         )
         return [
             ExtendedVectorisedDocument(
-                text=res.payload['text'],
+                text=res.payload["text"],
                 metadata={
-                    "title": res.payload.get('title'),
-                    "kind": res.payload['kind'],
-                    "web_id": res.payload['web_id'],
-                    "url": res.payload['url'],
+                    "title": res.payload.get("title"),
+                    "kind": res.payload["kind"],
+                    "web_id": res.payload["web_id"],
+                    "url": res.payload["url"],
                 },
                 embedding=res.vector,
                 id=res.id,
@@ -83,13 +74,12 @@ class QdrantGateway(VectorDBInterface):
             for res in response
         ]
 
-    async def create_collection(self, collection_name: str = 'baseline', **kwargs) -> Result[str, str]:
-        await self._client.create_collection(
-            collection_name=collection_name,
-            **kwargs
-        )
-        return Ok('success')
+    async def create_collection(
+        self, collection_name: str = "baseline", **kwargs
+    ) -> Result[str, str]:
+        await self._client.create_collection(collection_name=collection_name, **kwargs)
+        return Ok("success")
 
-    async def delete_collection(self, collection_name: str = 'baseline') -> Result[str, str]:
+    async def delete_collection(self, collection_name: str = "baseline") -> Result[str, str]:
         await self._client.delete_collection(collection_name=collection_name)
-        return Ok('success')
+        return Ok("success")

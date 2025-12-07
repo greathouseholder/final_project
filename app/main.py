@@ -7,9 +7,7 @@ from src.api import routers, container
 # from src.api.di import container
 
 
-app = FastAPI(
-    title="RAG Telegram Bot for Lawyers API"
-)
+app = FastAPI(title="RAG Telegram Bot for Lawyers API")
 
 app.include_router(routers)
 

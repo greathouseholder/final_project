@@ -8,7 +8,6 @@ from src.infra.adapters.vdb import VectorDBInterface
 
 
 class SearchProvider(Provider):
-
     @provide(scope=Scope.APP)
     def provide_search_uc(
         self,
@@ -18,8 +17,5 @@ class SearchProvider(Provider):
         reranker: RerankerInterface,
     ) -> SearchUC:
         return SearchUC(
-            vdb_gateway=vdb,
-            embedder=embedder,
-            llm_adapter=llm_adapter,
-            reranker=reranker
+            vdb_gateway=vdb, embedder=embedder, llm_adapter=llm_adapter, reranker=reranker
         )

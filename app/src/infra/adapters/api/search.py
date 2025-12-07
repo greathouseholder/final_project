@@ -7,5 +7,5 @@ def get_search_uc_request(request: SearchRequestAPI) -> SearchRequestUC:
         query=request.query_text,
         # потенцильно можно реализовать выбор модели
         model="",
-        collection_name=request.database_id
+        collection_name=request.database_id,
     )
