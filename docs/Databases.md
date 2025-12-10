@@ -42,12 +42,13 @@ Documents:
 -  document_id (UUID, PK)
 -  collection_id (UUID, FK)
 -  title (String)
--  metadata (JSON)     -- тут потенциально 'url' и пр.
 -  file_name (String)  -- оригинальное название файла
 -  file_size (Decimal) -- BigInt, если захотим хранить в байтах
 -  created_at (DateTime)
+-  path (String)       -- для загруженных файлов
+-  metadata (JSON)     -- тут потенциально 'url' и пр.
 -- -  content (Text) - было в доке Олега, но я считаю разумным
---                     хранить текст в Qdrant
+--                     хранить текст в Qdrant в payload
 -- -  vector_embedding (Vector) - было в доке Олега;
 --                                вектор мы храним в VDB (Qdrant)
 ```
@@ -72,42 +73,53 @@ Messages:
 ```
 
 ### Use cases (примерные)
-*Прим:* use cases описывают бизнес-логику, находятся в `src/application/` и зависят только от `domain` и абстрактных интерфейсов из `adapters`.
-*Прим:* сущности взяты из `api/v1/schemas.py`, по-хорошему надо переопределить их и закинуть в `domain` (Саша).
-1. Создание новой коллекции:
-```python
-class CreateCollectionUC:
-	def __init__(): ...
-	
-	async def execute(
-          self,
-		  request: DatabaseCreateRequest
-		  ) -> DatabaseCreateResponse:
-      ...
-```
-2. Проверить, является ли пользователь админом:
+#### Проверка на админа
+1. Проверить, является ли пользователь админом:
 ```python
 class CheckAdminUC:
 	def __init__(): ...
 	
 	async def execute(
           self,
-		  request: Request
+		  telegram_id: int
 		  ) -> bool:
       ...
 ```
-3. Вывести список доступных пользователю коллекций:
+#### Коллекции
+2. Вывести список доступных пользователю коллекций:
 ```python
 class GetAvaliableCollectionsUC:
 	def __init__(): ...
 	
     async def execute(
 	      self,
-		  user_id: int
-		  ) -> DatabasesGetResponse:
+		  telegram_id: int
+		  ) -> List[Collection]: # domain сущность; не написана
       ...
 ```
-4. Удалить коллекцию:
+3. Создание новой коллекции:
+```python
+class CreateCollectionUC:
+	def __init__(): ...
+	
+	async def execute(
+          self,
+		  request: CreateCollectionRequest # use case сущность; не написана
+		  ) -> Collection: # domain сущность; не написана
+      ...
+```
+4. Обновление данных коллекции:
+```python
+class UpdateCollectionUC:
+	def __init__(): ...
+	
+	async def execute(
+          self,
+		  request: UpdateCollectionRequest # use case сущность; не написана
+		  ) -> None:
+      ...
+```
+5. Удалить коллекцию:
 ```python
 class DeleteCollectionUC:
 	def __init__(): ...
@@ -115,10 +127,33 @@ class DeleteCollectionUC:
     async def DeleteCollectionUC(
 	      self,
 		  collection_id: int
-		  ) -> DatabaseDeleteResponse:
+		  ) -> None:
 	  ...
 ```
-5. Загрузить документы в коллекцию (уже существует, лежит в `src/application/embeddings/`, необходимо дописать):
+6. Получить конкретную коллекцию:
+```python
+class GetCollectionUC:
+	def __init__(): ...
+	
+    async def GetCollectionUC(
+	      self,
+		  collection_id: int
+		  ) -> Collection: # domain сущность; не написана
+	  ...
+```
+#### Документы
+7. Вывести список доступных пользователю документов в коллекции:
+```python
+class GetAvaliableDocumentsUC:
+	def __init__(): ...
+	
+    async def execute(
+	      self,
+		  request: GetAvaliableDocumentRequest # use case сущность; не написана
+		  ) -> List[Document]: # domain сущность; не написана
+      ...
+```
+8. Загрузить документы в коллекцию (уже существует, лежит в `src/application/embeddings/`, необходимо дописать):
 ```python
 class  LoadingUC:
 	__slots__  = ("_vdb_gateway",  "_embedder",  "_chunk_adapter")
@@ -127,9 +162,95 @@ class  LoadingUC:
 
 	async def execute(
 		  self, 
-		  request:  LoadDataRequest
-		  ) -> Result[str,  Any]:
+		  request:  LoadDataRequest # use case сущность; написана; 
+		  ) -> Result[str,  Any]: # что это 😭???
+		  					      # учитывая новый API,
+								  # необходимо возвращать
+								  # сущность Document
+		# вернее говоря, надо разобраться, что у нас с сущностями
+		# CoreDocument и пр, и, как один из вариантов, отнаследоваться
+		# от CoreDocument, чтобы создать новую сущность, которую
+		# можно вернуть в API, чтобы преобразовать там всё с кайфом
+		# пишите Саше короче
       ...
+```
+9. Обновление данных документа:
+```python
+class UpdateDocumentUC:
+	def __init__(): ...
+	
+	async def execute(
+          self,
+		  request: UpdateDocumentRequest # use case сущность; не написана
+		  ) -> None:
+      ...
+```
+10. Удалить коллекцию:
+```python
+class DeleteDocumentUC:
+	def __init__(): ...
+	
+    async def DeleteDocumentUC(
+	      self,
+		  document_id: int
+		  ) -> None:
+	  ...
+```
+11. Получить конкретный документ:
+```python
+class GetDocumentUC:
+	def __init__(): ...
+	
+    async def GetDocumentUC(
+	      self,
+		  document_id: int
+		  ) -> Document: # domain сущность; не написана
+	  ...
+```
+#### Диалоги ~~(тет-а-тет, до утра за «жили-были»)~~
+6. Вывести список доступных пользователю диалогов:
+```python
+class GetAvaliableConversationsUC:
+	def __init__(): ...
+	
+    async def execute(
+	      self,
+		  telegram_id: int
+		  ) -> List[Conversation]: # domain сущность; не написана
+      ...
+```
+7. Создание нового диалога:
+```python
+class CreateConversationUC:
+	def __init__(): ...
+	
+	async def execute(
+          self,
+		  request: CreateConversationRequest # use case сущность; не написана
+		  ) -> Conversation: # domain сущность; не написана
+      ...
+```
+8. Обновление данных диалога:
+```python
+class UpdateConversationUC:
+	def __init__(): ...
+	
+	async def execute(
+          self,
+		  request: UpdateConversationRequest # use case сущность; не написана
+		  ) -> None:
+      ...
+```
+9. Удалить диалог:
+```python
+class DeleteConversationUC:
+	def __init__(): ...
+	
+    async def DeleteConversationUC(
+	      self,
+		  conversation_id: int
+		  ) -> None:
+	  ...
 ```
 ### Абстрактный интерфейс и реализация
 Они должны содержать такой набор методов, чтобы use cases работали. В `adapters` много примеров абстрактных интерфейсов и реализаций.
