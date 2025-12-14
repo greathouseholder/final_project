@@ -9,7 +9,7 @@ from src.core.application.searching.use_cases.search import SearchUC
 from src.infra.adapters.embeddings import BGEEmbedder
 from src.infra.adapters.llm.openaiGenerator import OpenAIClient
 from src.infra.adapters.preprocessing.llm_preprocessor import LLMPreprocessor
-from src.infra.adapters.promts.jinjaPrompter import JinjaPrompter
+from src.infra.adapters.prompts.jinjaPrompter import JinjaPrompter
 from src.infra.adapters.rerank import BGEReranker
 from src.infra.adapters.validation.validate_preprocessor import ValidatorPreprocessing
 from src.infra.adapters.vdb.qdrantGateway import QdrantGateway

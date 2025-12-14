@@ -17,7 +17,7 @@ class OpenAIClient(LLMInterface):
         pass
 
     @retry(tries=3, delay=30)
-    async def get_answer(self, model: str, query: str) -> str:
+    async def get_answer(self, model: str, query: str) -> LLMResponse:
         try:
             response = await self.client.chat.completions.create(
                 model=model,
@@ -25,7 +25,10 @@ class OpenAIClient(LLMInterface):
                 temperature=0.5,
                 max_tokens=100,
             )
-            return response.choices[0].message.content.strip()
+            response = response.choices[0].message.content.strip()
+            return LLMResponse(model=model, response=response)
+
         except Exception as e:
             print(f"Error: {e}")
-            return query
+            # return query
+            raise e #не лучше ли поднять ошибку? Зачем пользователю его же сообщение?

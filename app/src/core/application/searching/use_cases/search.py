@@ -2,7 +2,7 @@ from src.core.application.searching.schemas.search import SearchRequest
 from src.core.domain.document import CoreDocument
 from src.infra.adapters.embeddings import EmbedderInterface
 from src.infra.adapters.preprocessing.llm_preprocessor import LLMPreprocessor
-from src.infra.adapters.promts.jinjaPrompter import CaseEnum
+from src.infra.adapters.prompts.jinjaPrompter import CaseEnum
 from src.infra.adapters.rerank import RerankerInterface
 from src.infra.adapters.vdb import VectorDBInterface
 
