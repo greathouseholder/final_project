@@ -42,6 +42,7 @@ Documents:
 -  document_id (UUID, PK)
 -  collection_id (UUID, FK)
 -  title (String)
+-  description (String)
 -  file_name (String)  -- оригинальное название файла
 -  file_size (Decimal) -- BigInt, если захотим хранить в байтах
 -  created_at (DateTime)

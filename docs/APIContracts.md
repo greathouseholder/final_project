@@ -194,6 +194,7 @@
 
 telegram_id=123456789,
 title="Закон о среднесборщиках",
+description="это кто вообще"
 url="rusgov.ru/law/2",
 file=[doc.txt]
 
@@ -265,6 +266,7 @@ file=[doc.txt]
   "document_id": 432,
   "collection_id": 7,
   "title": "Случай от 02.03.1999",
+  "description": "Летят в самолёте американец, немец и русский",
   "file_name": "case12.txt",
   "file_size": 12.2,
   "created_at": "2020-20-20",
@@ -342,6 +344,7 @@ file=[doc.txt]
     {            // По идее, len(List[...]) <= 5
       "collection_id": 7,
       "title": "Случай от 02.03.1999",
+      "description": "Самолёт начинает падать, и обнаруживается, что у них только два парашюта",
       "file_name": "case12.txt",
       "file_size": 12.2,
       "created_at": "2020-20-20",
@@ -353,6 +356,7 @@ file=[doc.txt]
       "document_id": 245,
       "collection_id": 9,
       "title": "Записки охотника",
+      "description": "Американец: дайте мне парашют! Мне нужно кормить семью!",
       "file_name": "okvotnik.pdf",
       "file_size": 22.2,
       "created_at": "1998-20-20",
@@ -406,6 +410,7 @@ file=[doc.txt]
   {
     "document_id": 432,
     "title": "Самоучитель игры на баяне",
+    "description": "Русский даёт ему рюкзак, американец прыгает. Немец: прыгай ты, я уже многое повидал",
     "file_name": "bayan.txt",
     "file_size": 12.2,
     "created_at": "2020-20-20",
@@ -416,6 +421,7 @@ file=[doc.txt]
   {
     "document_id": 432,
     "title": "Байки кота Баяна",
+    "description": "Русский: а ты? У нас же два парашюта. Немец: а с чем тогда американец прыгнул?",
     "file_name": "Bayan.txt",
     "file_size": 12.2,
     "created_at": "2020-20-20",
@@ -426,6 +432,7 @@ file=[doc.txt]
   {
     "document_id": 432,
     "title": "Баянные анекдоты",
+    "description": "Русский: ну ему же кормить семью надо, я и дал ему рюкзак с продуктами!",
     "file_name": "bayany.txt",
     "file_size": 12.2,
     "created_at": "2020-20-20",
