@@ -19,18 +19,16 @@
 ```json
 // Status: 200 OK
 // Response: List[CollectionShort]
-{
-  [
-    {
-      "collection_id": 2,
-      "name": "Имущественное право"
-    },
-    {
-      "collection_id": 3,
-      "name": "Гражданское право"
-    }
-  ]
-}	
+[
+  {
+    "collection_id": 2,
+    "name": "Имущественное право"
+  },
+  {
+    "collection_id": 3,
+    "name": "Гражданское право"
+  }
+]	
 ```
 
 #### 1.2. Добавить новую коллекцию
@@ -44,7 +42,8 @@
 {
   "telegram_id": 123456789,
   "name": "Архив анекдотов про порутчика Ржевского",
-  "description": "Так, по рофлу создал"
+  "description": "Так, по рофлу создал",
+  "is_public": True
 }
 
 // -------------------------
@@ -54,7 +53,8 @@
 {
   "collection_id": 5,
   "name": "Архив анекдотов про порутчика Ржевского",
-  "description": "Так, по рофлу создал"
+  "description": "Так, по рофлу создал",
+  "is_public": True
 }
 
 // Errors
@@ -109,7 +109,6 @@
   "name": "Гражданское право Узбекистана",
   "description": "А вы что хотели тут увидеть?",
   "document_count": 28,
-  "owner_id": 12,
   "is_public": True,
   "created_at": "2020-20-20"
 }
@@ -170,20 +169,18 @@
 ```json
 // Status: 200 OK
 // Response: List[DocumentShort]
-{
-  [
-    {
-      "document_id": 46,
-      "collection_id": 4,
-      "name": "ФЗ-231ю1"
-    },
-    {
-      "document_id": 47,
-      "collection_id": 4,
-      "name": "Указ Президента №12 от 02.10.25"
-    }
-  ]
-}
+[
+  {
+    "document_id": 46,
+    "collection_id": 4,
+    "name": "ФЗ-231ю1"
+  },
+  {
+    "document_id": 47,
+    "collection_id": 4,
+    "name": "Указ Президента №12 от 02.10.25"
+  }
+]
 ```
 
 #### 2.2. Загрузить новый документ
@@ -319,117 +316,12 @@ file=[doc.txt]
 }
 ```
 
-### 3. Работа с диалогами
 
-#### 3.1. Получить список доступных диалогов
+### 3. RAG-система
 
-**GET** `/conversations/?telegram_id=123456789`
+#### 3.1. Отправить запрос
 
-**Content-Type:** -
-
-```json
-// Status: 200 OK
-// Response: List[ConversationShort]
-{
-  [
-    {
-      "conversation_id": 46,
-      "collection_id": 2,
-      "name": "Браконьерство"
-    },
-    {
-      "conversation_id": 47,
-      "collection_id": 3,
-      "name": "Самый смешной анекдот"
-    }
-  ]
-}
-```
-
-#### 3.2. Создать новый диалог
-
-**POST** `/conversations`
-
-**Content-Type:** `application/json`
-
-```json
-// Request
-{
-  "telegram_id": 123456789,
-  "name": "Как приручить дрокона",
-  "collection_id": 2
-}
-
-// -------------------------
-
-// Status 201: Created
-// Response: ConversationShort
-{
-  "conversation_id": 55,
-  "collection_id": 2,
-  "name": "Как приручить дрокона"
-}
-
-// Errors
-// Status: 409 Conflict
-// Response:
-{
-  "detail": "Диалог с таким названием для этой коллекции уже существует"
-}
-
-// Status: 400 Bad Request
-// Response:
-{
-  "detail": "Желаемой коллекции не существует"
-}
-```
-
-#### 3.3 Удалить существующий диалог
-
-**DELETE** `/conversations/{conversation_id}/?telegram_id=123456789`
-
-**Content-Type:** -
-
-```json
-// Status: 204 No Content
-// Response: -
-
-// Errors
-// Status: 404 Not found
-// Response:
-{
-  "detail": "Диалог не найден"
-}
-```
-
-#### 3.4 Редактировать конкретный диалог
-
-**PATCH** `/conversations/{conversation_id}`
-
-**Content-Type:** `application/json`
-
-```json
-// Request
-{
-  "name": "Как приручить дракона"
-}
-
-// Status: 204 No Content
-// Response: -
-
-// Errors
-// Status: 404 Not Found
-// Response:
-{
-  "detail": "Диалог не найден"
-}
-```
-
-### 4. RAG-система
-
-#### 4.1. Отправить запрос
-
-**POST** `/conversations/{conversation_id}/query`
+**POST** `/collections/{collection_id}/query`
 
 **Content-Type:** `application/json`
 
@@ -444,7 +336,6 @@ file=[doc.txt]
 // Response: Message
 {
   "message_id": 1245,
-  "conversation_id": 3,
   "content": "В соответствие с законами РФ...",
   "role": "Bot",
   "sources": [   // List[DocumentRelevance] (возможны изменения)
@@ -491,11 +382,11 @@ file=[doc.txt]
 }
 ```
 
-### 5. ~~Пробив~~ Поиск по базе
+### 4. ~~Пробив~~ Поиск по базе
 
-#### 5.1 Поиск в коллекции
+#### 4.1 Поиск в коллекции
 
-**POST** `/collections/find`
+**POST** `/collections/{collection_id}/find`
 
 **Content-Type:** `application/json`
 
@@ -504,12 +395,46 @@ file=[doc.txt]
 {
   "telegram_id": 123456789,
   "collection_id": 5,
-  "number": 3,
+  "number_of_sources": 3,
   "query_text": "Самоучитель игры на баяне"
 }
 
 // Status: 200 OK
 // Response: List[DocumentRelevance] (возможны изменения)
+```json
+[
+  {
+    "document_id": 432,
+    "title": "Самоучитель игры на баяне",
+    "file_name": "bayan.txt",
+    "file_size": 12.2,
+    "created_at": "2020-20-20",
+    "metadata": {
+      "url": "https://blabla.ru"
+    }
+  },
+  {
+    "document_id": 432,
+    "title": "Байки кота Баяна",
+    "file_name": "Bayan.txt",
+    "file_size": 12.2,
+    "created_at": "2020-20-20",
+    "metadata": {
+      "url": "https://blabla.ru"
+    }
+  },
+  {
+    "document_id": 432,
+    "title": "Баянные анекдоты",
+    "file_name": "bayany.txt",
+    "file_size": 12.2,
+    "created_at": "2020-20-20",
+    "metadata": {
+      "url": "https://blabla.ru"
+    }
+  }
+]
+
 
 // Errors
 // Status: 404 Not Found
@@ -531,4 +456,4 @@ file=[doc.txt]
 }
 ```
 
-### 6. Платёжная система (WIP)
+### 5. Платёжная система (WIP)
