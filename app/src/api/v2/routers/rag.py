@@ -9,10 +9,10 @@ from src.core.application.embeddings import PreProcessQueryUC, SearchUC
 
 router = APIRouter(tags=["RAG"])
 
-@router.post("/conversations/{conversation_id}/query", response_model=Message)
+@router.post("/collections/{collection_id}/query", response_model=Message)
 @inject
 async def query_rag(
-    conversation_id: int,
+    collection_id: int,
     query_data: SearchRequest,
     preprocess_query: FromDishka[PreProcessQueryUC]
 ):
@@ -29,7 +29,7 @@ async def query_rag(
 
     return response
 
-@router.post("/collections/find", response_model=List[DocumentRelevance])
+@router.post("/collections/{collection_id}/find", response_model=List[DocumentRelevance])
 @inject
 async def search_in_collection(
     search_data: SearchRequest,
