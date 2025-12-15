@@ -1,5 +1,8 @@
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.fsm.context import FSMContext
 
-class InputQuery(StatesGroup):
-    pass
+class AddNewcollection(StatesGroup):
+    coll_name: State = State()
+    coll_descr: State = State()
+
+class DeleteCollection(StatesGroup):
+    coll_name: State = State()
