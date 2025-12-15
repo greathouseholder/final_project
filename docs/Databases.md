@@ -53,11 +53,10 @@ Documents:
 --                                вектор мы храним в VDB (Qdrant)
 ```
 
-#### Сообщение (Message)
+#### Сообщение (Message) (строго говоря, хранить историю сообщений вообще необязательно. Эту таблицу можно не реализовывать)
 ```sql
 Messages:
 -  message_id (UUID, PK)
--  conversation_id (UUID, FK)
 -  content (Text)
 -  role (String)
 -  sources (JSON)
