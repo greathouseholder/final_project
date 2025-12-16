@@ -27,6 +27,7 @@ class Document(BaseModel):
     document_id: int
     collection_id: int
     title: str
+    description: str
     file_name: str
     file_size: float
     created_at: datetime
