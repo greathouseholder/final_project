@@ -398,7 +398,6 @@ file=[doc.txt]
 // Request
 {
   "telegram_id": 123456789,
-  "collection_id": 5,
   "number_of_sources": 3,
   "query_text": "Самоучитель игры на баяне"
 }
