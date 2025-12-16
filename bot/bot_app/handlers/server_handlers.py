@@ -24,7 +24,7 @@ async def view_dbs_names(callback: CallbackQuery) -> None:
                 if response.status == 200:
                     data: Dict[str, List[Dict[str, str]]] = await response.json()
                     status_text: str = ''
-                    for collection in data.get("collections"):
+                    for collection in data:
                         status_text += f'{collection.get("name")}\n' 
                 else:
                     status_text: str = f"Ошибка сервера: {response.status}"
@@ -118,7 +118,7 @@ async def delete_collection_server(collection_name: str, user_id: int) -> str:
             if not dbs:
                 return status_text
             collection_id: int | None = None
-            for collection in dbs["collections"]:
+            for collection in dbs:
                 if collection["name"] == collection_name:
                     collection_id = collection["collection_id"]
                     break
@@ -135,3 +135,64 @@ async def delete_collection_server(collection_name: str, user_id: int) -> str:
     except Exception as e:
         return f"Неизвестная ошибка: {str(e)}"
     
+#список коллекций для создания клавиатуры
+async def view_dbs_internal(user_id: int) -> List[Dict[str, str]]:
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                SERVER + API_V + f"/collections/?telegram_id={user_id}",
+                timeout=aiohttp.ClientTimeout(total=10)
+            ) as response:    
+                data: List[Dict[str, str]] = []
+                if response.status == 200:
+                    data = await response.json()
+                else:
+                    data = [{"error": "Ошибка сервера"}]
+        return data
+    except aiohttp.ClientError as e:
+        data = [{"error": f"Ошибка подключения: {str(e)}"}]
+        return data
+    except Exception as e:
+        data = [{"error": f"Неизвестная ошибка: {str(e)}"}]
+        return data
+
+#отправка rag-запроса
+async def send_rag(collection_id, telegram_id, query_text):
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                SERVER + API_V + f"/collections/{collection_id}/query",
+                json= {
+                    "telegram_id": telegram_id,
+                    "query_text": query_text
+                },
+                timeout=aiohttp.ClientTimeout(total=10)
+            ) as response:  
+                data = await response.json()
+                if "detail" in data:
+                    return '', data
+                return data["content"], data["sources"]
+    except aiohttp.ClientError as e:
+        return '', {"detail": f"Ошибка подключения: {str(e)}"}
+    except Exception as e:
+        return '', {"detail": f"Неизвестная ошибка: {str(e)}"}
+    
+#запрос на поиск документов
+async def search_docs(collection_id, telegram_id, number_of_sources, query_text):
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                SERVER + API_V + f"/collections/{collection_id}/find",
+                json= {
+                    "telegram_id": telegram_id,
+                    "number_of_sources": number_of_sources,
+                    "query_text": query_text
+                },
+                timeout=aiohttp.ClientTimeout(total=10)
+            ) as response:  
+                data = await response.json()
+                return data
+    except aiohttp.ClientError as e:
+        return {"detail": f"Ошибка подключения: {str(e)}"}
+    except Exception as e:
+        return {"detail": f"Неизвестная ошибка: {str(e)}"}

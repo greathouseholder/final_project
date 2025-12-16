@@ -1,4 +1,4 @@
-#обработка запросов, подразумевающих приём информации от пользователя
+#файл-инвалид мне просто для образца
 from typing import Dict
 from aiogram import F, Router
 from aiogram.types import CallbackQuery, Message
