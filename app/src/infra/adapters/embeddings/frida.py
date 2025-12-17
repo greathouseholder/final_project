@@ -1,5 +1,5 @@
-from sentence_transformers import SentenceTransformer
 from result import Result
+from sentence_transformers import SentenceTransformer
 
 from src.core.domain.document import CoreDocument, VectorisedDocument
 from src.infra.adapters.embeddings.interface import EmbedderInterface
@@ -15,7 +15,8 @@ class FridaEmbedder(EmbedderInterface):
             try:
                 self._model = SentenceTransformer(self.model_name)
             except Exception as e:
-                raise ValueError(f"Failed to load model {self.model_name}: {str(e)}")
+                raise ValueError(
+                    f"Failed to load model {self.model_name}: {str(e)}") from e
         return self._model
 
     def embed(self, text: str, is_query: bool = False) -> Result[list[float], str]:
@@ -27,7 +28,9 @@ class FridaEmbedder(EmbedderInterface):
 
         try:
             model = self._get_model()
-            embedding = model.encode([prefixed_text], normalize_embeddings=True)
+            embedding = model.encode(
+                [prefixed_text],
+                normalize_embeddings=True)
             vector = embedding[0].tolist()
             return Result.Ok(vector)
         except Exception as e:
@@ -41,8 +44,8 @@ class FridaEmbedder(EmbedderInterface):
         vector = embed_result.unwrap()
         try:
             vectorised_doc = VectorisedDocument(
-                text=document.text, metadata=document.metadata, embedding=vector
-            )
+                text=document.text, metadata=document.metadata,
+                embedding=vector)
             return Result.Ok(vectorised_doc)
         except Exception as e:
             return Result.Err(f"Failed to create VectorisedDocument: {str(e)}")
