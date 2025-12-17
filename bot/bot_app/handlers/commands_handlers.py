@@ -12,7 +12,7 @@ router_commands: Router = Router()
 async def cmd_start(message: Message) -> None:
     await message.answer("Приветствуем тебя, ковбой! " \
     "Для просмотра доступных команд введи /help ." \
-    "Выбери панель:", reply_markup=kb.select_dialogue)
+    "Выбери панель:", reply_markup=kb.main_menu)
 
 @router_commands.message(Command('call_saul'))
 async def cmd_call_saul(message: Message) -> None:
