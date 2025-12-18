@@ -1,10 +1,12 @@
 from typing import List
 from uuid import UUID
 
-from app.src.core.domain.rdb_entities import DocumentCollection
 from app.src.core.application.rdb.schemas.collection import (
-    CreateCollectionRequest, UpdateCollectionRequest, CollectionResponse
+    CollectionResponse,
+    CreateCollectionRequest,
+    UpdateCollectionRequest,
 )
+from app.src.core.domain.rdb_entities import DocumentCollection
 
 
 class GetAvailableCollectionsUC:
@@ -22,7 +24,8 @@ class CreateCollectionUC:
 
     async def execute(self, request: CreateCollectionRequest, user_id: UUID) -> CollectionResponse:
         if await self.rdb_repo.collection_exists(request.name, user_id):
-            raise ValueError(f"Collection with name '{request.name}' already exists")
+            raise ValueError(
+                f"Collection with name '{request.name}' already exists")
         collection = await self.rdb_repo.create_collection(request, user_id)
         return CollectionResponse(**collection.model_dump())
 
@@ -31,9 +34,11 @@ class UpdateCollectionUC:
     def __init__(self, rdb_repo):
         self.rdb_repo = rdb_repo
 
-    async def execute(self, request: UpdateCollectionRequest, user_id: UUID) -> None:
+    async def execute(
+            self, request: UpdateCollectionRequest, user_id: UUID) -> None:
         collection = await self.rdb_repo.get_collection_by_id(request.collection_id)
-        if not collection or (collection.owner_id != user_id and not collection.is_public):
+        if not collection or (collection.owner_id !=
+                              user_id and not collection.is_public):
             raise ValueError("Collection not found or access denied")
         await self.rdb_repo.update_collection(request)
 
@@ -55,8 +60,10 @@ class GetCollectionUC:
     def __init__(self, rdb_repo):
         self.rdb_repo = rdb_repo
 
-    async def execute(self, collection_id: UUID, user_id: UUID) -> CollectionResponse:
+    async def execute(
+            self, collection_id: UUID, user_id: UUID) -> CollectionResponse:
         collection = await self.rdb_repo.get_collection_by_id(collection_id)
-        if not collection or (collection.owner_id != user_id and not collection.is_public):
+        if not collection or (collection.owner_id !=
+                              user_id and not collection.is_public):
             raise ValueError("Collection not found or access denied")
         return CollectionResponse(**collection.model_dump())

@@ -1,46 +1,61 @@
 from typing import List
+from uuid import UUID
 
 from dishka.integrations.fastapi import FromDishka, inject
-from fastapi import APIRouter, Body, HTTPException, Query, status
+from fastapi import APIRouter, HTTPException, Query, status
 
 from src.api.v2.schemas import Collection, CollectionCreate, CollectionShort, CollectionUpdate
-from src.core.application.databases import (
+from src.core.application.rdb.schemas import (
+    CollectionResponse,
+    CreateCollectionRequest,
+    CreateUserRequest,
+    DocumentResponse,
+    UpdateCollectionRequest,
+    UpdateDocumentRequest,
+    UserResponse,
+)
+from src.core.application.rdb.use_cases import (
     CheckAdminUC,
     CreateCollectionUC,
     DeleteCollectionUC,
     GetAvaliableCollectionsUC,
     GetCollectionUC,
+    GetUserIdUC,
     UpdateCollectionUC,
 )
 
 router = APIRouter(prefix="/collections", tags=["collections"])
 
-mock_collections = []
-mock_users = {}
-
 
 @router.get("/", response_model=List[CollectionShort])
 @inject
 async def get_collections(
-    get_avaliable_collections: FromDishka[GetAvaliableCollectionsUC],
+    get_avaliable_collections_uc: FromDishka[GetAvaliableCollectionsUC],
+    get_user_id_uc: FromDishka[GetUserIdUC],
     telegram_id: int = Query(..., description="Telegram ID пользователя")
-):
+) -> List[CollectionShort]:
     """
     Получить список коллекций пользователя.
     """
-    available_collections: List[Collection] = await get_avaliable_collections.execute(
-        telegram_id=telegram_id
-    )
+    try:
+        user_id: UUID = await get_user_id_uc.execute(telegram_id)
+    except ValueError as exception:
+        raise HTTPException(
+            status_code=404,
+            detail=str(exception)
+        ) from None
+
+    available_collections: List[CollectionResponse] = \
+        await get_avaliable_collections_uc.execute(user_id)
 
     return [
         CollectionShort(
-            collection_id=col.collection_id,
-            name=col.name,
-            description=col.description
+            collection_id=collection.collection_id,
+            name=collection.name,
+            description=collection.description
         )
-        for col in available_collections
+        for collection in available_collections
     ]
-    # return available_collections
 
 
 @router.post("/", response_model=CollectionShort,
