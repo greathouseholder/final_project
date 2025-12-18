@@ -46,6 +46,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "dishka" },
     { name = "fastapi" },
+    { name = "gigachat" },
     { name = "hf-xet" },
     { name = "langchain" },
     { name = "langchain-text-splitters" },
@@ -74,6 +75,7 @@ dev = [
 requires-dist = [
     { name = "dishka", specifier = ">=1.7.2" },
     { name = "fastapi", specifier = ">=0.121.1" },
+    { name = "gigachat", specifier = ">=0.1.43" },
     { name = "hf-xet", specifier = ">=1.2.0" },
     { name = "langchain", specifier = ">=1.0.5" },
     { name = "langchain-text-splitters", specifier = ">=1.0.0" },
@@ -259,6 +261,19 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/24/7f/2747c0d332b9acfa75dc84447a066fdf812b5a6b8d30472b74d309bfe8cb/fsspec-2025.10.0.tar.gz", hash = "sha256:b6789427626f068f9a83ca4e8a3cc050850b6c0f71f99ddb4f542b8266a26a59", size = 309285, upload-time = "2025-10-30T14:58:44.036Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/eb/02/a6b21098b1d5d6249b7c5ab69dde30108a71e4e819d4a9778f1de1d5b70d/fsspec-2025.10.0-py3-none-any.whl", hash = "sha256:7c7712353ae7d875407f97715f0e1ffcc21e33d5b24556cb1e090ae9409ec61d", size = 200966, upload-time = "2025-10-30T14:58:42.53Z" },
+]
+
+[[package]]
+name = "gigachat"
+version = "0.1.43"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "httpx" },
+    { name = "pydantic" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b6/f7/e3356dfa881202633301f640ae1e087d522e8f8a4754af3e453da41e8429/gigachat-0.1.43.tar.gz", hash = "sha256:70c7f34d030d43826d1b80b935c9074e14770780bcf8204b316b39dd5ee69a98", size = 34170, upload-time = "2025-11-11T12:18:32.506Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d2/48/e6dec5d2a2616bb53cf85c8f531477e2643d804e88ba09bd34ad744625eb/gigachat-0.1.43-py3-none-any.whl", hash = "sha256:b5820cebf3f1056822dfc92ef9cca886bbb0e79e3d6b9882afa4e7bb93a71d88", size = 69884, upload-time = "2025-11-11T12:18:31.229Z" },
 ]
 
 [[package]]

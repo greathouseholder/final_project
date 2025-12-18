@@ -5,7 +5,7 @@ from src.core.application.generation.schemas.answer import Message, LLMResponse
 
 class LLMInterface(ABC):
     @abstractmethod
-    def generate(self, model: str, history: List[Message]) -> LLMResponse:
+    async def generate(self, model: str, history: List[Message]) -> LLMResponse:
         pass
 
     @abstractmethod
