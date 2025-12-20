@@ -28,7 +28,7 @@ class Document(BaseModel):
     title: str
     file_name: str
     file_size: float
-    created_at: datetime
+    created_at: Optional[datetime]
     metadata: Dict[str, Any] # тут возможны 'url' и 'relevance'
 
 class ConversationShort(BaseModel):
