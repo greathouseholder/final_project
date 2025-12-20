@@ -1,8 +1,8 @@
 from typing import List
 from uuid import UUID
 
-from app.src.core.application.rdb.schemas.document import DocumentResponse, UpdateDocumentRequest
-from app.src.core.domain.rdb_entities import Document
+from src.core.application.rdb.schemas.document import DocumentResponse, UpdateDocumentRequest
+from src.core.domain.rdb_entities import Document
 
 
 class GetAvailableDocumentsUC:

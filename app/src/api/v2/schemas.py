@@ -14,9 +14,8 @@ class Collection(BaseModel):
     name: str
     description: Optional[str] = None
     document_count: int
-    owner_id: int
     is_public: bool
-    created_at: datetime
+    created_at: Optional[datetime]
 
 class DocumentShort(BaseModel):
     document_id: int
@@ -29,7 +28,7 @@ class Document(BaseModel):
     title: str
     file_name: str
     file_size: float
-    created_at: datetime
+    created_at: Optional[datetime]
     metadata: Dict[str, Any] # тут возможны 'url' и 'relevance'
 
 class ConversationShort(BaseModel):
@@ -49,6 +48,7 @@ class CollectionCreate(BaseModel):
     telegram_id: int = Field(..., description="Telegram ID пользователя")
     name: str = Field(..., min_length=1, max_length=255, description="Название коллекции")
     description: Optional[str] = Field(None, max_length=1000, description="Описание коллекции")
+    is_public: bool = Field(None, description="Параметр публичности")
 
 class CollectionUpdate(BaseModel):
     telegram_id: int = Field(..., description="Telegram ID пользователя")

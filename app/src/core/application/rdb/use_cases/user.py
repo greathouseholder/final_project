@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from app.src.core.domain.rdb_entities import User
+from src.core.domain.rdb_entities import User
 
 
 class CheckAdminUC:

@@ -22,6 +22,7 @@ class LoadingUC:
         self._chunk_adapter = chunk_adapter
 
     async def execute(self, request: LoadDataRequest) -> Result[str, Any]:
+        # -> что-то, из чего можно получить title, collection_id и document_id
         split_document = self._chunk_adapter.split(
             text=request.data, chunk_size=request.chunk_size,
             chunk_overlap=request.chunk_overlap)
