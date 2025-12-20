@@ -1,9 +1,9 @@
 import uvicorn
-
-from fastapi import FastAPI
 from dishka.integrations.fastapi import setup_dishka
+from fastapi import FastAPI
 
-from src.api import routers, container
+from src.api import container, routers
+
 # from src.api.di import container
 
 
