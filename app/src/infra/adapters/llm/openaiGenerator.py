@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, cast
 
 import openai
 from retry import retry
@@ -30,5 +30,4 @@ class OpenAIClient(LLMInterface):
 
         except Exception as e:
             print(f"Error: {e}")
-            # return query
-            raise e #не лучше ли поднять ошибку? Зачем пользователю его же сообщение?
+            raise e
