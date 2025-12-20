@@ -2,16 +2,14 @@ from typing import List
 from uuid import UUID
 
 from dishka.integrations.fastapi import FromDishka, inject
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, HTTPException, status
 
 from src.api.v2.schemas import Collection, CollectionCreate, CollectionShort, CollectionUpdate
 from src.core.application.rdb.schemas import (
     CollectionResponse,
     CreateCollectionRequest,
     CreateUserRequest,
-    DocumentResponse,
     UpdateCollectionRequest,
-    UpdateDocumentRequest,
     UserResponse,
 )
 from src.core.application.rdb.use_cases import (
@@ -21,7 +19,7 @@ from src.core.application.rdb.use_cases import (
     GetAvailableCollectionsUC,
     GetCollectionUC,
     GetUserIdUC,
-    UpdateCollectionUC,
+    UpdateCollectionUC,  # требуется CreateUserUC
 )
 
 router = APIRouter(prefix="/collections", tags=["collections"])
@@ -85,7 +83,13 @@ async def create_collection(
         )
 
     try:
-        collection: CollectionResponse = await create_collection_uc.execute(collection_data, user_id)
+        collection: CollectionResponse = await create_collection_uc.execute(
+            CreateCollectionRequest(
+                name=collection_data.name,
+                description=collection_data.description,
+                is_public=collection_data.is_public
+            ),
+            user_id)
     except ValueError as error:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
