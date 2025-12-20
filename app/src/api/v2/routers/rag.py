@@ -3,9 +3,9 @@ from typing import List
 from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, HTTPException, status
 
-from src.api.v2.schemas import DocumentRelevance, Message, SearchRequest
-from src.core.application.embeddings import SearchUC
+from src.api.v2.schemas import Document, Message, SearchRequest
 from src.core.application.generation.use_cases.answer import AnswerUC
+from src.core.application.searching.use_cases.search import SearchUC
 
 router = APIRouter(tags=["RAG"])
 
@@ -36,7 +36,7 @@ async def query_rag(
 
 
 @router.post("/collections/{collection_id}/find",
-             response_model=List[DocumentRelevance])
+             response_model=List[Document])
 @inject
 async def search_in_collection(
     collection_id: int,

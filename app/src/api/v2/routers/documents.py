@@ -11,7 +11,7 @@ from src.core.application.rdb.schemas import DocumentResponse, UpdateDocumentReq
 from src.core.application.rdb.use_cases import (
     CheckAdminUC,
     DeleteDocumentUC,
-    GetAvaliableDocumentsUC,
+    GetAvailableDocumentsUC,
     GetDocumentUC,
     GetUserIdUC,
     UpdateDocumentUC,
@@ -28,7 +28,7 @@ async def get_documents(
     telegram_id: int,
     collection_id: int,
     get_user_id_uc: FromDishka[GetUserIdUC],
-    get_avaliable_documents_uc: FromDishka[GetAvaliableDocumentsUC]
+    get_avaliable_documents_uc: FromDishka[GetAvailableDocumentsUC]
 ):
     """
     Получить список доступных документов.

@@ -1,12 +1,12 @@
 from typing import List
 from uuid import UUID
 
-from app.src.core.application.rdb.schemas.collection import (
+from src.core.application.rdb.schemas.collection import (
     CollectionResponse,
     CreateCollectionRequest,
     UpdateCollectionRequest,
 )
-from app.src.core.domain.rdb_entities import DocumentCollection
+from src.core.domain.rdb_entities import DocumentCollection
 
 
 class GetAvailableCollectionsUC:
