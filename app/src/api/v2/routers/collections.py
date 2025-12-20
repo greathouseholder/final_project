@@ -119,7 +119,7 @@ async def delete_collection(
         user_id: UUID = await get_user_id_uc.execute(telegram_id)
     except ValueError as error:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail=str(error)
         ) from None
 
@@ -153,7 +153,7 @@ async def get_collection(
         user_id: UUID = await get_user_id_uc.execute(telegram_id)
     except ValueError as error:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail=str(error)
         ) from None
 
@@ -191,7 +191,7 @@ async def update_collection(
         user_id: UUID = await get_user_id_uc.execute(collection_data.telegram_id)
     except ValueError as error:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail=str(error)
         ) from None
 
