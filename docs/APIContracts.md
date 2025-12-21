@@ -339,9 +339,7 @@ file=[doc.txt]
 // Status: 200 OK
 // Response: Message
 {
-  "message_id": 1245,
   "content": "В соответствие с законами РФ...",
-  "role": "Bot",
   "sources": [   // List[DocumentRelevance] (возможны изменения)
     {            // По идее, len(List[...]) <= 5
       "collection_id": 7,
