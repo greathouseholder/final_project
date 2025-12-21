@@ -3,7 +3,7 @@ from typing import List, cast
 import openai
 from retry import retry
 
-from src.core.application.generation.schemas.answer import Message, LLMResponse
+from src.core.application.generation.schemas.answer import LLMResponse, Message
 from src.infra.adapters.llm.interface import LLMInterface
 from src.shared.config import config
 

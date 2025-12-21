@@ -5,3 +5,4 @@ class SearchRequest(BaseModel):
     query: str
     model: str
     collection_name: str
+    top_k: int = 5
