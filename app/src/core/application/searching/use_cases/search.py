@@ -32,8 +32,8 @@ class SearchUC:
         )
 
         relevant_documents = self._reranker.rerank(
-            query=summarised_query, documents=relevant_documents, top_k=5
-        )
+            query=summarised_query, documents=relevant_documents,
+            top_k=request.top_k)
 
         return [
             CoreDocument(text=doc.text, metadata=doc.metadata) for doc in relevant_documents.value

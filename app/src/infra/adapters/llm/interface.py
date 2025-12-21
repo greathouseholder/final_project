@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
-from src.core.application.generation.schemas.answer import Message, LLMResponse
+
+from src.core.application.generation.schemas.answer import LLMResponse, Message
 
 
 class LLMInterface(ABC):

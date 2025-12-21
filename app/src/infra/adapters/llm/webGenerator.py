@@ -1,8 +1,11 @@
-from typing import List, Any
+from typing import Any, List
+
 import openai
-from .interface import LLMInterface
+
+from src.core.application.generation.schemas.answer import LLMResponse, Message
 from src.shared.config import config
-from src.core.application.generation.schemas.answer import Message, LLMResponse
+
+from .interface import LLMInterface
 
 
 class LLMClient(LLMInterface):
