@@ -4,6 +4,7 @@ from uuid import UUID
 from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, HTTPException, status
 
+from src.api.v2.exceptions import handle_exception
 from src.api.v2.schemas import Collection, CollectionCreate, CollectionShort, CollectionUpdate
 from src.core.application.rdb.schemas import (
     CollectionResponse,
@@ -90,11 +91,8 @@ async def create_collection(
                 is_public=collection_data.is_public
             ),
             user_id)
-    except ValueError as error:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=str(error)
-        ) from None
+    except Exception as exc:
+        return handle_exception(exc)
 
     return CollectionShort(
         collection_id=collection.collection_id,
@@ -131,11 +129,8 @@ async def delete_collection(
 
     try:
         await delete_collection_uc.execute(collection_id, user_id)
-    except ValueError as error:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(error)
-        ) from None
+    except Exception as exc:
+        return handle_exception(exc)
 
 
 @router.get("/{collection_id}", response_model=Collection)
@@ -159,11 +154,8 @@ async def get_collection(
 
     try:
         collection: CollectionResponse = await get_collection_uc.execute(collection_id, user_id)
-    except ValueError as error:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(error)
-        ) from None
+    except Exception as exc:
+        return handle_exception(exc)
 
     return Collection(
         collection_id=collection.collection_id,
@@ -210,8 +202,5 @@ async def update_collection(
                 is_public=None
             ),
             user_id=user_id)
-    except ValueError as error:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(error)
-        ) from None
+    except Exception as exc:
+        return handle_exception(exc)

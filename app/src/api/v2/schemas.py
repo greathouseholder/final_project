@@ -63,6 +63,7 @@ class DocumentCreate(BaseModel):
 class DocumentUpdate(BaseModel):
     telegram_id: int = Field(..., description="Telegram ID пользователя")
     title: Optional[str] = Field(None, min_length=1, max_length=255, description="Новое название")
+    description: Optional[str] = Field(None, max_length=1000, description="Новое описание")
 
 class ConversationCreate(BaseModel):
     telegram_id: int = Field(..., description="Telegram ID пользователя")
