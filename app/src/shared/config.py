@@ -1,8 +1,7 @@
 import os
-
-from dotenv import load_dotenv
 from dataclasses import dataclass
 
+from dotenv import load_dotenv
 
 load_dotenv()
 
