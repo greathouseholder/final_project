@@ -1,5 +1,6 @@
-from pydantic import BaseModel
 from enum import Enum
+
+from pydantic import BaseModel
 
 
 class MessageRole(Enum):
@@ -14,4 +15,10 @@ class Message(BaseModel):
 
 class LLMResponse(BaseModel):
     model: str
-    response: str
+    response_text: str
+
+
+class LLMRequest(BaseModel):
+    query: str
+    model: str
+    collection_name: str

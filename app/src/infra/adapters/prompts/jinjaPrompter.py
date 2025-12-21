@@ -1,8 +1,9 @@
+import os
 from enum import Enum
 
-from src.infra.adapters.prompts.interface import PrompterInterface
-import os
 import jinja2
+
+from src.infra.adapters.prompts.interface import PrompterInterface
 
 
 class CaseEnum(Enum):

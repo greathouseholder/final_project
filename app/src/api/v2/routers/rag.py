@@ -1,19 +1,22 @@
-from typing import List
+from typing import List, Tuple
 from uuid import UUID
 
 from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, HTTPException, status
-from src.api.v2.exceptions import handle_exception
 
+from src.api.v2.exceptions import handle_exception
 from src.api.v2.schemas import Document, Message, SearchRequest
-from src.core.application.searching.schemas.search import SearchRequest as SearchRequestForUseCase
+from src.core.application.generation.schemas.answer import LLMRequest
 from src.core.application.generation.use_cases.answer import AnswerUC
+from src.core.application.rdb.use_cases.user import (
+    CheckAdminUC,
+    GetAttemptCountUC,  # не написан
+    GetUserIdUC,
+)
+from src.core.application.searching.schemas.search import SearchRequest as SearchRequestForUseCase
 from src.core.application.searching.use_cases.search import SearchUC
-from src.core.application.rdb.use_cases.user import GetUserIdUC, CheckAdminUC, GetAttemptCountUC  # не написан
 
 router = APIRouter(tags=["RAG"])
-
-# переписать позже
 
 
 @router.post("/collections/{collection_id}/query", response_model=Message)
@@ -21,20 +24,52 @@ router = APIRouter(tags=["RAG"])
 async def query_rag(
     collection_id: int,
     query_data: SearchRequest,
-    preprocess_query: FromDishka[AnswerUC]
+    generate_answer_uc: FromDishka[AnswerUC],
+    get_user_id_uc: FromDishka[GetUserIdUC],
+    check_admin_uc: FromDishka[CheckAdminUC],
+    get_attempt_count_uc: FromDishka[GetAttemptCountUC]
 ):
     """
     Отправить запрос к RAG-системе.
     """
     try:
-        response = await preprocess_query.execute(query_data)
+        user_id: UUID = await get_user_id_uc.execute(query_data.telegram_id)
     except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail="Регистрация пользователей не реализована"
+        ) from None
+
+    try:
+        attempts_count: int = await get_attempt_count_uc.execute(user_id)
+        is_admin: bool = await check_admin_uc.execute(user_id)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Внутренняя ошибка сервера"
+        ) from None
+
+    if attempts_count >= 10 and not is_admin:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="Ваши бесплатные попытки кончились"
         ) from None
 
-    return response
+    try:
+        llm_response, core_documents = await generate_answer_uc.execute(
+            LLMRequest(
+                query=query_data.query_text,
+                model="Gigachat",
+                collection_name=collection_id  # беда
+            )
+        )
+    except Exception as exc:
+        return handle_exception(exc)
+
+    return {
+        "content": llm_response.response_text,
+        "sources": core_documents
+    }
 
 
 @router.post("/collections/{collection_id}/find",
