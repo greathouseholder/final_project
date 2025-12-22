@@ -298,7 +298,9 @@ file=[doc.txt]
 ```json
 // Request
 {
-  "title": "НоВоЕ ИмЯ v2.0"
+  "telegram_id": 123456789,
+  "title": "НоВоЕ ИмЯ v2.0",
+  "description": "Новое описание, всем привет!"
 }
 
 // Status: 204 No Content
@@ -337,9 +339,7 @@ file=[doc.txt]
 // Status: 200 OK
 // Response: Message
 {
-  "message_id": 1245,
   "content": "В соответствие с законами РФ...",
-  "role": "Bot",
   "sources": [   // List[DocumentRelevance] (возможны изменения)
     {            // По идее, len(List[...]) <= 5
       "collection_id": 7,
