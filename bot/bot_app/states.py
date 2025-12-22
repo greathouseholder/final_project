@@ -11,6 +11,7 @@ class AddNewcollection(StatesGroup):
     coll_descr = State()
     is_public = State()
 
+#удаление коллекции
 class DeleteCollection(StatesGroup):
     coll_name = State()
 
@@ -25,11 +26,17 @@ class DocSearch(StatesGroup):
     choose_number_of_sources = State()
     input_query = State()
 
+#добавление документа
+class AddDoc(StatesGroup):
+    input_name = State()
+    input_desc = State()
+    input_url = State()
+    send_file = State()
+
 #удаление документа
 class DeleteDoc(StatesGroup):
-    choose_coll = State()
     choose_doc = State()
-    is_sure = State()
+    is_sure = State() #опционально потом сделаю
     
 #фильтр, который проверяет одновременно префикс колбэка и state
 class StateAndCallbackStartsWithFilter(BaseFilter):

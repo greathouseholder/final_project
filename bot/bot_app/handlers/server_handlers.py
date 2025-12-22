@@ -10,38 +10,6 @@ from config import SERVER, API_V
 
 server_router: Router = Router()
 
-#посмотреть названия коллекций
-@server_router.callback_query(F.data == 'view_dbs_names')
-async def view_dbs_names(callback: CallbackQuery) -> None:
-    await callback.answer('Запрашиваю базы данных...')
-    user_id: int = callback.from_user.id
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                SERVER + API_V + f"/collections/?telegram_id={user_id}",
-                timeout=aiohttp.ClientTimeout(total=10)
-            ) as response:    
-                if response.status == 200:
-                    data: Dict[str, List[Dict[str, str]]] = await response.json()
-                    status_text: str = ''
-                    for collection in data:
-                        status_text += f'{collection.get("name")}\n' 
-                else:
-                    status_text: str = f"Ошибка сервера: {response.status}"
-                await callback.message.answer(
-                        text=status_text,
-                        parse_mode="Markdown"
-                    ) if status_text else await callback.message.answer(
-                        text="Баз данных не найдено",
-                        parse_mode="Markdown"
-                    )
-    except aiohttp.ClientError as e:
-        await callback.message.answer(f"Ошибка подключения: {str(e)}")
-        await callback.answer()
-    except Exception as e:
-        await callback.message.answer(f"Неизвестная ошибка: {str(e)}")
-        await callback.answer()
-
 #получить полную информацию о коллекциях
 @server_router.callback_query(F.data == 'view_dbs')
 async def view_dbs(callback: CallbackQuery) -> None:
@@ -104,12 +72,53 @@ async def add_collection_server(telegram_id: int,
     except Exception as e:
         return f"Неизвестная ошибка: {str(e)}"
 
+#добавить документ в коллекцию
+async def add_doc(coll_id: int, data: Dict, file_bytes: bytes, filename: str):
+     async with aiohttp.ClientSession() as session:
+        form_data = aiohttp.FormData()
+        form_data.add_field(
+            'metadata',
+            json.dumps(data, ensure_ascii=False),
+            content_type='application/json'
+        )
+
+        form_data.add_field(
+            'file',
+            file_bytes,
+            filename=filename,
+            content_type='text/plain'
+        )
+        
+        async with session.post(
+            SERVER + API_V + f"/collections/{coll_id}/documents",
+            data=form_data,
+            timeout=aiohttp.ClientTimeout(total=30)
+        ) as response:
+            return await response.json()
+
 #удалить коллекцию
 async def delete_collection_server(collection_id: str, user_id: int) -> str:
     try:
         async with aiohttp.ClientSession() as session:
             async with session.delete(
                 SERVER + API_V + f"/collections/{collection_id}/?telegram_id={user_id}",
+                timeout=aiohttp.ClientTimeout(total=10)) as response:
+                status_text: str = "success"
+                if response.status != 204:
+                    detail: Dict[str, str] = await response.json()
+                    status_text = detail["detail"]
+        return status_text
+    except aiohttp.ClientError as e:
+        return f"Ошибка подключения: {str(e)}"
+    except Exception as e:
+        return f"Неизвестная ошибка: {str(e)}"
+    
+#удалить документ из коллекции
+async def delete_doc(coll_id: int, doc_id: int, user_id: int) -> str:
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.delete(
+                SERVER + API_V + f"/collections/{coll_id}/documents/{doc_id}/?telegram_id={user_id}",
                 timeout=aiohttp.ClientTimeout(total=10)) as response:
                 status_text: str = "success"
                 if response.status != 204:

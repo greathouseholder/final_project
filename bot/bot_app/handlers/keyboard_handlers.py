@@ -28,16 +28,12 @@ async def current_page(callback: CallbackQuery):
 async def go_to_page(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     if "documents" in data:
-        print("документс ин дата")
         documents = data.get("documents", [])
         current_page = int(callback.data.split("_")[1])
         keyboard = kb.create_pagination_keyboard(documents, "document", current_page)
-        print(f"карент пейдж = {current_page}")
         await callback.message.edit_text('Выберите документ:', reply_markup=keyboard)
     elif "collections" in data:
-        print("колекшнс ин дата")
         collections = data.get("collections", [])
         current_page = int(callback.data.split("_")[1])
         keyboard = kb.create_pagination_keyboard(collections, "collection", current_page)
         await callback.message.edit_text('Выберите коллекцию:', reply_markup=keyboard)
-
