@@ -37,3 +37,8 @@ async def go_to_page(callback: CallbackQuery, state: FSMContext):
         current_page = int(callback.data.split("_")[1])
         keyboard = kb.create_pagination_keyboard(collections, "collection", current_page)
         await callback.message.edit_text('Выберите коллекцию:', reply_markup=keyboard)
+
+@keyboard_router.callback_query(F.data == 'pay')
+async def handle_pay(callback: CallbackQuery):
+    await callback.answer()
+    await callback.message.edit_text("Хотите ли Вы оплатить подписку", reply_markup=kb.payment_keyboard)

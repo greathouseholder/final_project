@@ -212,4 +212,21 @@ async def search_docs(collection_id: int, telegram_id: int, number_of_sources: i
         return {"detail": f"Ошибка подключения: {str(e)}"}
     except Exception as e:
         return {"detail": f"Неизвестная ошибка: {str(e)}"}
-    
+
+#оплата прошла успешно
+async def subscription(user_id: int):
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                SERVER + API_V + f"/users/payment",
+                json= {
+                    "telegram_id": user_id,
+                },
+                timeout=aiohttp.ClientTimeout(total=10)
+            ) as response:  
+                data = await response.json()
+                return data
+    except aiohttp.ClientError as e:
+        return {"detail": f"Ошибка подключения: {str(e)}"}
+    except Exception as e:
+        return {"detail": f"Неизвестная ошибка: {str(e)}"}

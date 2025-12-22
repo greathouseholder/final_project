@@ -37,6 +37,11 @@ is_public_keyboard = InlineKeyboardMarkup(inline_keyboard=[
      InlineKeyboardButton(text="Приватная", callback_data="public_0")]
 ])
 
+payment_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text="Хочу", callback_data="payment"),
+     InlineKeyboardButton(text="Не хочу", callback_data="main_menu")]
+])
+
 def create_pagination_keyboard(items: list,
                                item_type: str = "collection",
                                page: int = 0,
