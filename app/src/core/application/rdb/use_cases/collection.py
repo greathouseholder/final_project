@@ -24,7 +24,7 @@ class CreateCollectionUC:
 
     async def execute(self, request: CreateCollectionRequest, user_id: UUID) -> CollectionResponse:
         if await self.rdb_repo.collection_exists(request.name, user_id):
-            raise ValueError(
+            raise FileExistsError(
                 f"Collection with name '{request.name}' already exists")
         collection = await self.rdb_repo.create_collection(request, user_id)
         return CollectionResponse(**collection.model_dump())
@@ -37,9 +37,10 @@ class UpdateCollectionUC:
     async def execute(
             self, request: UpdateCollectionRequest, user_id: UUID) -> None:
         collection = await self.rdb_repo.get_collection_by_id(request.collection_id)
-        if not collection or (collection.owner_id !=
-                              user_id and not collection.is_public):
-            raise ValueError("Collection not found or access denied")
+        if not collection:
+            raise FileNotFoundError("Collection not found")
+        if collection.owner_id != user_id and not collection.is_public:
+            raise PermissionError("Access denied")
         await self.rdb_repo.update_collection(request)
 
 
@@ -50,9 +51,9 @@ class DeleteCollectionUC:
     async def execute(self, collection_id: UUID, user_id: UUID) -> None:
         collection = await self.rdb_repo.get_collection_by_id(collection_id)
         if not collection:
-            raise ValueError("Collection not found")
+            raise FileNotFoundError("Collection not found")
         if collection.owner_id != user_id:
-            raise ValueError("Access denied")
+            raise PermissionError("Access denied")
         await self.rdb_repo.delete_collection(collection_id)
 
 
@@ -63,7 +64,8 @@ class GetCollectionUC:
     async def execute(
             self, collection_id: UUID, user_id: UUID) -> CollectionResponse:
         collection = await self.rdb_repo.get_collection_by_id(collection_id)
-        if not collection or (collection.owner_id !=
-                              user_id and not collection.is_public):
-            raise ValueError("Collection not found or access denied")
+        if not collection:
+            raise FileNotFoundError("Collection not found")
+        if collection.owner_id != user_id and not collection.is_public:
+            raise PermissionError("Access denied")
         return CollectionResponse(**collection.model_dump())

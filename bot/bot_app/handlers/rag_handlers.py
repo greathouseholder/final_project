@@ -36,13 +36,12 @@ async def rag_choose_coll(callback: CallbackQuery, state: FSMContext):
                                                                  st.InputQuery.choose_coll))
 async def rag_input(callback: CallbackQuery, state: FSMContext):
     await state.set_state(st.InputQuery.input_query)
-    await state.update_data(coll_id=callback.data[18:])
+    await state.update_data(coll_id=int(callback.data[18:]))
     await callback.answer('')
     await callback.message.answer('Введите Ваш запрос: ', reply_markup=kb.cancel_button_keyboard)
 
 #возврат от ввода запроса к выбору коллекций
-@rag_router.callback_query(st.StateAndCallbackStartsWithFilter("cancel",
-                                                                 st.InputQuery.input_query))
+@rag_router.callback_query(st.StateAndCallbackFilter("cancel", st.InputQuery.input_query))
 async def cancel_rag_input(callback: CallbackQuery, state: FSMContext):
     await state.set_state(st.InputQuery.choose_coll)
     data = await state.get_data()
