@@ -27,7 +27,7 @@ async def cmd_call_saul(message: Message) -> None:
 async def cmd_help(message: Message) -> None:
     await message.answer("Доступные команды: \n"
     "/call_saul\n"
-    "/get_my_photo", reply_markup=kb.return_button_keyboard)
+    "/get_my_photo")
 
 @router_commands.message(Command('get_my_photo'))
 async def get_photo(message: Message) -> None:
