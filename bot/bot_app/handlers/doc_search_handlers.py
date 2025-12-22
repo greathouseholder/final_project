@@ -40,7 +40,7 @@ async def doc_search_choose_number_of_sources(callback: CallbackQuery, state: FS
                                      reply_markup=kb.number_of_sources)
     
 #возврат от выбора количества источников к выбору коллекций
-@doc_search_router.callback_query(st.StateAndCallbackStartsWithFilter("cancel",
+@doc_search_router.callback_query(st.StateAndCallbackFilter("cancel",
                                                                  st.DocSearch.choose_number_of_sources))
 async def cancel_doc_search_number_of_sources_choose(callback: CallbackQuery,
                                                      state: FSMContext):
@@ -60,8 +60,8 @@ async def doc_search_input(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer('Введите Ваш запрос: ', reply_markup=kb.cancel_button_keyboard)
 
 #возврат от ввода запроса к выбору количества источников
-@doc_search_router.callback_query(st.StateAndCallbackStartsWithFilter("cancel",
-                                                                 st.DocSearch.input_query))
+@doc_search_router.callback_query(st.StateAndCallbackFilter("cancel",
+                                                            st.DocSearch.input_query))
 async def cancel_doc_search_input(callback: CallbackQuery, state: FSMContext):
     await state.set_state(st.DocSearch.choose_number_of_sources)
     await callback.message.edit_text(text="Выберите количество источников, которое хотите получить",

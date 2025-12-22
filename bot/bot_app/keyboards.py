@@ -2,27 +2,27 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-main_menu: InlineKeyboardMarkup = InlineKeyboardMarkup(inline_keyboard=[
+main_menu = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="Отправить запрос", callback_data="RAG_query")],
     [InlineKeyboardButton(text="Поиск по документам", callback_data="search")],
     [InlineKeyboardButton(text="Коллекции", callback_data="collections")],
     [InlineKeyboardButton(text="Оплатить подписку", callback_data="pay")]
 ])
 
-collections_menu: InlineKeyboardMarkup = InlineKeyboardMarkup(inline_keyboard=[
+collections_menu = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="Добавить коллекцию", callback_data="add_db")],
-    [InlineKeyboardButton(text="Действия с коллекциями", callback_data="view_dbs_names")],
+    [InlineKeyboardButton(text="Действия с коллекциями", callback_data="collections_actions")],
     [InlineKeyboardButton(text="Посмотреть полную информацию о коллекциях", callback_data="view_dbs")]
 ])
 
-collections_actions_menu: InlineKeyboardMarkup = InlineKeyboardMarkup(inline_keyboard=[
+collections_actions_menu = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="Удалить документ из коллекции", callback_data="view_docs")],
     [InlineKeyboardButton(text="Посмотреть документы", callback_data="view_docs")],
     [InlineKeyboardButton(text="Удалить коллекцию", callback_data="delete_db")],
     [InlineKeyboardButton(text="Добавить документ в коллекцию", callback_data="add_doc")]
 ])
 
-number_of_sources: InlineKeyboardMarkup = InlineKeyboardMarkup(inline_keyboard=[
+number_of_sources = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="1", callback_data="sources_1"),
      InlineKeyboardButton(text="2", callback_data="sources_2"),
      InlineKeyboardButton(text="3", callback_data="sources_3"),
@@ -32,7 +32,13 @@ number_of_sources: InlineKeyboardMarkup = InlineKeyboardMarkup(inline_keyboard=[
      [InlineKeyboardButton(text="Отмена", callback_data="cancel")]
 ])
 
+is_public_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text="Публичная", callback_data="public_1"),
+     InlineKeyboardButton(text="Приватная", callback_data="public_0")]
+])
+
 def create_pagination_keyboard(items: list,
+                               item_type: str = "collection",
                                page: int = 0,
                                items_per_page: int = 5) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
@@ -42,7 +48,7 @@ def create_pagination_keyboard(items: list,
     for item in page_items:
         builder.button(
             text=f"{item.get('name', 'Без названия')[:30]}",
-            callback_data=f"select_collection:{item.get('collection_id', '')}"
+            callback_data=f"select_{item_type}:{item.get(f'{item_type}_id', '')}"
         )
     builder.adjust(1) 
     

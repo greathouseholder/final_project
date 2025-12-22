@@ -18,16 +18,26 @@ async def open_panels(callback: CallbackQuery, state: FSMContext):
     await state.clear()
     await callback.message.edit_text('Выберите действие', reply_markup=kb.main_menu)
 
-#навигация для умной клавиатуры с коллекциями
+#навигация для умной клавиатуры:
 @keyboard_router.callback_query(F.data == "current_page")
 async def current_page(callback: CallbackQuery):
     await callback.answer('')
 
+#для коллекций
 @keyboard_router.callback_query(F.data.startswith("page_"))
 async def go_to_page(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
-    collections = data.get("collections", [])
-    current_page = int(callback.data.split("_")[1])
-    keyboard = kb.create_pagination_keyboard(collections, current_page)
-    await callback.message.edit_text('Выберите коллекцию:', reply_markup=keyboard)
+    if "documents" in data:
+        print("документс ин дата")
+        documents = data.get("documents", [])
+        current_page = int(callback.data.split("_")[1])
+        keyboard = kb.create_pagination_keyboard(documents, "document", current_page)
+        print(f"карент пейдж = {current_page}")
+        await callback.message.edit_text('Выберите документ:', reply_markup=keyboard)
+    elif "collections" in data:
+        print("колекшнс ин дата")
+        collections = data.get("collections", [])
+        current_page = int(callback.data.split("_")[1])
+        keyboard = kb.create_pagination_keyboard(collections, "collection", current_page)
+        await callback.message.edit_text('Выберите коллекцию:', reply_markup=keyboard)
 
