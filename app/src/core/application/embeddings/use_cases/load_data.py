@@ -6,7 +6,7 @@ from result import Result, Ok, Err
 from src.core.application.embeddings.schemas.load_data import LoadDataRequest
 from src.core.domain.document import CoreDocument, VectorisedDocument
 from src.core.domain.rdb_entities import Document as RDBDocument
-from src.core.infra.adapters.rdb.interface import RDBRepository
+from src.infra.adapters.rdb.interface import RDBRepository
 from src.infra.adapters.chunks import ChunkAdapterInterface
 from src.infra.adapters.embeddings import EmbedderInterface
 from src.infra.adapters.vdb import VectorDBInterface
