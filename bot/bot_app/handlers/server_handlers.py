@@ -72,6 +72,24 @@ async def add_collection_server(telegram_id: int,
     except Exception as e:
         return f"Неизвестная ошибка: {str(e)}"
 
+#обновить информацию о коллекции
+async def update_coll(user_id: int, coll_id: int, name: str, desc: str):
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.patch(
+                SERVER + API_V + f"/collections/{coll_id}",
+                json={
+                        "telegram_id": user_id,
+                        "title": name,
+                        "description": desc
+                },
+                timeout=aiohttp.ClientTimeout(total=30)) as response:
+                return await response.json()
+    except aiohttp.ClientError as e:
+        return {"detail": f"Ошибка подключения: {str(e)}"}
+    except Exception as e:
+        return {"detail": f"Неизвестная ошибка: {str(e)}"}
+
 #добавить документ в коллекцию
 async def add_doc(coll_id: int, data: Dict, file_bytes: bytes, filename: str):
      async with aiohttp.ClientSession() as session:
@@ -95,6 +113,41 @@ async def add_doc(coll_id: int, data: Dict, file_bytes: bytes, filename: str):
             timeout=aiohttp.ClientTimeout(total=30)
         ) as response:
             return await response.json()
+
+#посмотреть информацию о документе
+async def get_doc(user_id: int, coll_id: int, doc_id: int):
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.delete(
+                SERVER + API_V + f"/collections/{coll_id}/documents/{doc_id}/?telegram_id={user_id}",
+                timeout=aiohttp.ClientTimeout(total=10)) as response:
+                return await response.json()
+    except aiohttp.ClientError as e:
+        return {"detail": f"Ошибка подключения: {str(e)}"}
+    except Exception as e:
+        return {"detail": f"Неизвестная ошибка: {str(e)}"}
+    
+#изменить информацию о документе
+async def update_doc(user_id: int,
+                     coll_id: int,
+                     doc_id: int,
+                     name: str,
+                     desc: str):
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.patch(
+                SERVER + API_V + f"/collections/{coll_id}/documents/{doc_id}",
+                json={
+                        "telegram_id": user_id,
+                        "title": name,
+                        "description": desc
+                },
+                timeout=aiohttp.ClientTimeout(total=30)) as response:
+                return await response.json()
+    except aiohttp.ClientError as e:
+        return {"detail": f"Ошибка подключения: {str(e)}"}
+    except Exception as e:
+        return {"detail": f"Неизвестная ошибка: {str(e)}"}
 
 #удалить коллекцию
 async def delete_collection_server(collection_id: str, user_id: int) -> str:
@@ -212,4 +265,35 @@ async def search_docs(collection_id: int, telegram_id: int, number_of_sources: i
         return {"detail": f"Ошибка подключения: {str(e)}"}
     except Exception as e:
         return {"detail": f"Неизвестная ошибка: {str(e)}"}
-    
+
+#куплена ли подписка
+async def is_paid(user_id: int):
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                SERVER + API_V + f"/users/payment/?telegram_id={user_id}",
+                timeout=aiohttp.ClientTimeout(total=10)
+            ) as response:  
+                data = await response.json()
+                return data
+    except aiohttp.ClientError as e:
+        return {"detail": f"Ошибка подключения: {str(e)}"}
+    except Exception as e:
+        return {"detail": f"Неизвестная ошибка: {str(e)}"}
+
+#оплата прошла успешно
+async def subscription(user_id: int):
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                SERVER + API_V + f"/users/payment",
+                json= {
+                    "telegram_id": user_id,
+                },
+                timeout=aiohttp.ClientTimeout(total=10)
+            ) as response:  
+                pass
+    except aiohttp.ClientError as e:
+        return {"detail": f"Ошибка подключения: {str(e)}"}
+    except Exception as e:
+        return {"detail": f"Неизвестная ошибка: {str(e)}"}
