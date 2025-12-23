@@ -4,7 +4,7 @@ from src.core.domain.rdb_entities import User
 
 
 class CheckAdminUC:
-    def __init__(self, rdb_repo):  # DI: RDBRepository
+    def __init__(self, rdb_repo):
         self.rdb_repo = rdb_repo
 
     async def execute(self, telegram_id: int) -> bool:
@@ -35,12 +35,44 @@ class GetTelegramIdUC:
 
 
 class GetAttemptCountUC:
-    pass
+    def __init__(self, rdb_repo):
+        self.rdb_repo = rdb_repo
+
+    async def execute(self, user_id: UUID) -> int:
+        user = await self.rdb_repo.get_user_by_id(user_id)
+        if not user:
+            raise ValueError(f"User with id {user_id} not found")
+        return user.attempt_count
 
 
 class CheckPaymentUC:
-    pass
+    """Проверяет, является ли пользователь платящим (подписка активна)"""
+    def __init__(self, rdb_repo):
+        self.rdb_repo = rdb_repo
+
+    async def execute(self, user_id: UUID) -> bool:
+        user = await self.rdb_repo.get_user_by_id(user_id)
+        if not user:
+            raise ValueError(f"User with id {user_id} not found")
+        return user.is_paid
 
 
 class RecordPaymentUC:
-    pass
+    """
+    Отмечает пользователя как платящего.
+    Обычно вызывается после успешной оплаты подписки.
+    Можно также сбросить attempt_count, если это нужно по логике.
+    """
+    def __init__(self, rdb_repo):
+        self.rdb_repo = rdb_repo
+
+    async def execute(self, user_id: UUID, reset_attempts: bool = True) -> None:
+        user = await self.rdb_repo.get_user_by_id(user_id)
+        if not user:
+            raise ValueError(f"User with id {user_id} not found")
+
+        updates = {"is_paid": True}
+        if reset_attempts:
+            updates["attempt_count"] = 0
+
+        await self.rdb_repo.update_user(user_id, **updates)

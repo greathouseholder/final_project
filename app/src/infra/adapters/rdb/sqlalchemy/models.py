@@ -13,6 +13,8 @@ class UserModel(Base):
     telegram_id = Column(Integer, unique=True, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     role = Column(String, default="user")
+    is_paid = Column(Boolean, default=False)
+    attempt_count = Column(Integer, default=0)
 
 
 class CollectionModel(Base):

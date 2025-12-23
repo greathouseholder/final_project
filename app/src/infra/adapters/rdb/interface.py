@@ -67,3 +67,11 @@ class RDBRepository(ABC):
     @abstractmethod
     async def delete_document(self, document_id: UUID) -> None:
         pass
+
+    @abstractmethod
+    async def update_user(self, user_id: UUID, **updates) -> None:
+        pass
+
+    @abstractmethod
+    async def increment_document_count(self, collection_id: UUID) -> None:
+        pass
