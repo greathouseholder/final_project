@@ -7,7 +7,7 @@ from qdrant_client.http.models import Filter, FieldCondition, MatchValue
 from result import Err, Ok, Result
 
 from src.core.domain.document import ExtendedVectorisedDocument, VectorisedDocument
-from src.core.infra.adapters.vdb.interface import VectorDBInterface
+from src.infra.adapters.vdb.interface import VectorDBInterface
 
 
 class QdrantGateway(VectorDBInterface):
