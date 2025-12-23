@@ -7,7 +7,7 @@ from src.infra.adapters.rerank import BGEReranker
 from src.infra.adapters.vdb import QdrantGateway
 
 
-class SearchProvider(Provider):
+class SearchUCProvider(Provider):
     @provide(scope=Scope.REQUEST)
     def provide_search_uc(
         self,

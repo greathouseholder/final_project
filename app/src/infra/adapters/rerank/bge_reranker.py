@@ -1,9 +1,11 @@
-from sentence_transformers import CrossEncoder
-import torch
 from typing import List
-from result import Result, Ok, Err
+
+import torch
+from result import Err, Ok, Result
+from sentence_transformers import CrossEncoder
 
 from src.core.domain.document import ExtendedVectorisedDocument
+
 from .interface import RerankerInterface
 
 
@@ -17,7 +19,8 @@ class BGEReranker(RerankerInterface):
             try:
                 self._model = CrossEncoder(self.model_name)
             except Exception as e:
-                raise ValueError(f"Failed to load reranker model {self.model_name}: {str(e)}")
+                raise ValueError(
+                    f"Failed to load reranker model {self.model_name}: {str(e)}") from e
         return self._model
 
     def rerank(
@@ -34,7 +37,8 @@ class BGEReranker(RerankerInterface):
 
             for i, pair in enumerate(pairs):
                 if not all(isinstance(text, str) for text in pair):
-                    return Err(f"Invalid text types in pair {i}: {[type(text) for text in pair]}")
+                    return Err(
+                        f"Invalid text types in pair {i}: {[type(text) for text in pair]}")
 
             scores = model.predict(pairs)
             scores = torch.sigmoid(torch.tensor(scores)).cpu().numpy()
