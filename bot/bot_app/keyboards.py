@@ -19,7 +19,8 @@ collections_actions_menu = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="Удалить документ из коллекции", callback_data="delete_doc")],
     [InlineKeyboardButton(text="Посмотреть документы", callback_data="view_docs")],
     [InlineKeyboardButton(text="Удалить коллекцию", callback_data="delete_db")],
-    [InlineKeyboardButton(text="Добавить документ в коллекцию", callback_data="add_doc")]
+    [InlineKeyboardButton(text="Добавить документ в коллекцию", callback_data="add_doc")],
+    [InlineKeyboardButton(text="Изменить коллекцию", callback_data='update_coll')]
 ])
 
 number_of_sources = InlineKeyboardMarkup(inline_keyboard=[
@@ -35,6 +36,11 @@ number_of_sources = InlineKeyboardMarkup(inline_keyboard=[
 is_public_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="Публичная", callback_data="public_1"),
      InlineKeyboardButton(text="Приватная", callback_data="public_0")]
+])
+
+document_actions_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text="Посмотреть информацию о документе", callback_data="doc_info")],
+    [InlineKeyboardButton(text="Изменить информацию о документе", callback_data="update_doc")]
 ])
 
 payment_keyboard = InlineKeyboardMarkup(inline_keyboard=[

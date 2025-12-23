@@ -1,5 +1,5 @@
 from typing import Dict
-from aiogram import Router
+from aiogram import Router, F
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 
@@ -32,7 +32,83 @@ async def view_docs(callback: CallbackQuery, state: FSMContext):
         await state.update_data(docs=docs, current_page=0)
         await callback.message.edit_text('Вот все документы из коллекции', reply_markup=keyboard)
 
-#запрос ввода названия
+#открыть меню действий с документом (посмотреть информацию/изменить)
+@documents_router.callback_query(st.StateAndCallbackStartsWithFilter("select_document:",
+                                                                     st.ViewCollections.view))
+async def document_menu(callback: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    documents = data.get('documents')
+    doc_id: int = callback.data.split(':')[1]
+    aim_doc = {
+        "document_id": -100,
+        "name": "None",
+        "collection_id": -100
+    }
+    for doc in documents:
+        if int(doc.get('document_id')) == int(doc_id):
+            aim_doc = doc
+            break
+    await state.update_data(aim_doc=aim_doc)
+    await callback.answer()
+    await callback.message.edit_text("Выберите действие с документом",
+                                     reply_markup=kb.document_actions_keyboard)
+
+#посмотреть информацию о документе
+@documents_router.callback_query(F.data == "doc_info")
+async def view_doc_info(callback: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    aim_doc = data.get("aim_doc")
+    await callback.answer()
+    doc_id: int = int(aim_doc.get('document_id', -1))
+    coll_id: int = int(aim_doc.get('collection_id', -1))
+    user_id: int = callback.from_user.id
+    response = sh.get_doc(user_id, coll_id, doc_id)
+    if 'detail' in response:
+        await callback.message.answer(f"Ошибка: {response.get('detail')}")
+    else:
+        metadata = response.get('metadata')
+        url = metadata.get('url')
+        await callback.message.answer(f"<b> {response.get('title', -1)} </b> \n \n"
+                                    f"Название файла: {response.get('file_name', -1)}\n "
+                                    f"Размер файла: {response.get('file_size', 'без названия')} Mb\n"
+                                    f"Загружен в коллекцию: {response.get('created_at', 'без названия')}\n"
+                                    f"Ссылка на источник: {url}\n")
+    await state.clear()
+
+#изменение информации о документе: запрос ввода названия
+@documents_router.callback_query(F.data == 'update_doc')
+async def update_doc_name(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+    await state.set_state(st.UpdateDocument.input_name)
+    await callback.message.answer("Введите новое название документа:",
+                                  reply_markup=kb.cancel_button_keyboard)
+    
+#запрос ввода описания
+@documents_router.message(st.UpdateDocument.input_name)
+async def update_doc_desc(message: Message, state: FSMContext):
+    await state.update_data(name=message.text)
+    await state.set_state(st.UpdateDocument.input_desc)
+    await message.answer("Введите новое описание: ",
+                         reply_markup=kb.cancel_button_keyboard)
+
+#запрос на обновление документа
+@documents_router.message(st.UpdateDocument.input_desc)
+async def update_doc(message: Message, state: FSMContext):
+    data = await state.get_data()
+    desc = message.text
+    name = data.get("name")
+    doc = data.get("aim_doc")
+    doc_id = doc.get("document_id")
+    coll_id = doc.get("collection_id")
+    user_id = message.from_user.id
+    response = await sh.update_doc(user_id, coll_id, doc_id, name, desc)
+    if 'detail' in response:
+        await message.answer(f"Ошибка: {response.get('detail')}")
+    else:
+        await message.answer("Документ успешно изменён")
+    await state.clear()
+
+#добавление документа: запрос ввода названия
 @documents_router.callback_query(st.StateAndCallbackFilter("add_doc", st.ViewCollections.view))
 async def add_doc_name(callback: CallbackQuery, state: FSMContext):
     data: Dict = await state.get_data()
@@ -47,7 +123,9 @@ async def add_doc_name(callback: CallbackQuery, state: FSMContext):
 @documents_router.callback_query(st.StateAndCallbackFilter("cancel", st.AddDoc.input_desc))
 @documents_router.callback_query(st.StateAndCallbackFilter("cancel", st.AddDoc.input_url))
 @documents_router.callback_query(st.StateAndCallbackFilter("cancel", st.AddDoc.send_file))
-async def cancel_add_doc(callback: CallbackQuery, state: FSMContext):
+@documents_router.callback_query(st.StateAndCallbackFilter("cancel", st.UpdateDocument.input_name))
+@documents_router.callback_query(st.StateAndCallbackFilter("cancel", st.UpdateDocument.input_desc))
+async def cancel_add_edit_doc(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     await state.set_state(st.ViewCollections.view)
     await callback.message.edit_text('Выберите действие', reply_markup=kb.collections_actions_menu)
