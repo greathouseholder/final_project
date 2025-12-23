@@ -1,8 +1,9 @@
 from dishka import Provider, Scope, provide
 from qdrant_client import AsyncQdrantClient
 
-from shared.config import config
+from src.infra.adapters.vdb.interface import VectorDBInterface
 from src.infra.adapters.vdb.qdrantGateway import QdrantGateway
+from src.shared.config import config
 
 
 class QdrantProvider(Provider):
@@ -15,5 +16,5 @@ class QdrantProvider(Provider):
 
     @provide(scope=Scope.APP)
     def provide_qdrant_gateway(
-            self, client: AsyncQdrantClient) -> QdrantGateway:
+            self, client: AsyncQdrantClient) -> VectorDBInterface:
         return QdrantGateway(client)

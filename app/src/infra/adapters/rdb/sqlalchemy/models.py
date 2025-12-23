@@ -36,4 +36,4 @@ class DocumentModel(Base):
     file_size = Column(Integer, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     path = Column(String)
-    metadata = Column(JSON, default=dict)
+    payload = Column(JSON, default=dict)
