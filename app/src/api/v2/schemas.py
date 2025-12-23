@@ -49,6 +49,15 @@ class Message(BaseModel):
     role: str
     sources: List[Document]
 
+
+class UploadDocumentRequest(BaseModel):
+    telegram_id: int
+    title: str = Field(
+        None, min_length=1, max_length=255, description="Новое название")
+    description: Optional[str] = Field(
+        None, max_length=1000, description="Новое описание")
+    url: Optional[HttpUrl] = Field(None, description="URL источника документа")
+
 # Request schemas
 
 
