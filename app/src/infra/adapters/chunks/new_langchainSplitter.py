@@ -5,7 +5,7 @@ from src.core.domain.document import CoreDocument
 from src.infra.adapters.chunks import ChunkAdapterInterface
 
 
-class LangChainSplitter(ChunkAdapterInterface):
+class NewLangChainSplitter(ChunkAdapterInterface):
     def __init__(self, chunk_size: int = 300, chunk_overlap: int = 100):
         self._text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
