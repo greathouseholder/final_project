@@ -1,9 +1,10 @@
 import uuid
 from typing import List
-from result import Result, Ok, Err
-from qdrant_client import AsyncQdrantClient, models
 
-from src.core.domain.document import VectorisedDocument, ExtendedVectorisedDocument
+from qdrant_client import AsyncQdrantClient, models
+from result import Err, Ok, Result
+
+from src.core.domain.document import ExtendedVectorisedDocument, VectorisedDocument
 from src.infra.adapters.vdb import VectorDBInterface
 
 

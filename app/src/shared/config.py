@@ -21,5 +21,7 @@ class Config:
         "APP_CORS_ORIGINS_LIST", default="").split(",")
     APP_NGINX_PREFIX: str = os.getenv("APP_NGINX_PREFIX", default="/")
 
+    RELATIONAL_DATABASE_URL: str = ...
+
 
 config = Config()

@@ -32,3 +32,15 @@ class GetTelegramIdUC:
         if not user:
             raise ValueError(f"User with id {user_id} not found")
         return user.telegram_id
+
+
+class GetAttemptCountUC:
+    pass
+
+
+class CheckPaymentUC:
+    pass
+
+
+class RecordPaymentUC:
+    pass
