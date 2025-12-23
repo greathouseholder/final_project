@@ -1,16 +1,22 @@
-from app.src.infra.adapters.rdb.sqlalchemy.repository import SQLAlchemyRDBRepository
 from dishka import Provider, Scope, provide
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 from sqlalchemy.orm import declarative_base
 
-from shared.config import config
+from src.infra.adapters.rdb.interface import RDBRepository
+from src.infra.adapters.rdb.sqlalchemy.repository import SQLAlchemyRDBRepository
+from src.shared.config import config
 
 Base = declarative_base()
 
 
 class DatabaseProvider(Provider):
     @provide(scope=Scope.APP)
-    def provide_db_engine(self):
+    def provide_db_engine(self) -> AsyncEngine:
         return create_async_engine(
             config.RELATIONAL_DATABASE_URL,
             future=True
@@ -18,7 +24,7 @@ class DatabaseProvider(Provider):
 
     @provide(scope=Scope.APP)
     def provide_session_factory(
-            self, engine) -> async_sessionmaker[AsyncSession]:
+            self, engine: AsyncEngine) -> async_sessionmaker[AsyncSession]:
         return async_sessionmaker(
             engine,
             class_=AsyncSession,
@@ -37,5 +43,5 @@ class DatabaseProvider(Provider):
 class SQLAlchemyRDBRepositoryProvider(Provider):
     @provide(scope=Scope.REQUEST)
     def provide_sqlalchemy_repository(
-            self, session: AsyncSession) -> SQLAlchemyRDBRepository:
+            self, session: AsyncSession) -> RDBRepository:
         return SQLAlchemyRDBRepository(session)

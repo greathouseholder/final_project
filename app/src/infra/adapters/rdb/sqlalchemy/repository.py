@@ -1,16 +1,17 @@
 from typing import List, Optional
 from uuid import UUID
 
-from app.src.core.application.rdb.schemas.collection import (
+from sqlalchemy import delete, select, update
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.core.application.rdb.schemas.collection import (
     CreateCollectionRequest,
     UpdateCollectionRequest,
 )
-from app.src.core.application.rdb.schemas.document import UpdateDocumentRequest
-from app.src.core.domain.rdb_entities import Document, DocumentCollection, User
-from app.src.infra.adapters.rdb.interface import RDBRepository
-from app.src.infra.adapters.rdb.sqlalchemy.models import CollectionModel, DocumentModel, UserModel
-from sqlalchemy import delete, select, update
-from sqlalchemy.ext.asyncio import AsyncSession
+from src.core.application.rdb.schemas.document import UpdateDocumentRequest
+from src.core.domain.rdb_entities import Document, DocumentCollection, User
+from src.infra.adapters.rdb.interface import RDBRepository
+from src.infra.adapters.rdb.sqlalchemy.models import CollectionModel, DocumentModel, UserModel
 
 
 class SQLAlchemyRDBRepository(RDBRepository):
@@ -114,7 +115,7 @@ class SQLAlchemyRDBRepository(RDBRepository):
         stmt = update(DocumentModel).where(DocumentModel.document_id == request.document_id).values(
             title=request.title if request.title is not None else DocumentModel.title,
             description=request.description if request.description is not None else DocumentModel.description,
-            metadata=request.metadata if request.metadata is not None else DocumentModel.metadata
+            payload=request.metadata if request.metadata is not None else DocumentModel.payload
         )
         await self.session.execute(stmt)
         await self.session.commit()
