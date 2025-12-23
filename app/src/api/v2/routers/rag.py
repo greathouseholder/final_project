@@ -50,7 +50,7 @@ async def query_rag(
             LLMRequest(
                 query=query_data.query_text,
                 model="Gigachat",
-                collection_name=collection_id
+                collection_id=collection_id
             )
         )
 
@@ -92,7 +92,7 @@ async def search_in_collection(
         results = await search_documents_uc.execute(SearchRequestForUseCase(
             query=search_data.query_text,
             model="GigaChat",
-            collection_name=collection_id,
+            collection_id=collection_id,
             top_k=search_data.number
         ))
 

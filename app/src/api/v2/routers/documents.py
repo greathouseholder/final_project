@@ -1,10 +1,12 @@
 from typing import List
+from uuid import UUID
 
 import chardet
 import pdfplumber
 from dishka.integrations.fastapi import FromDishka, inject
 from docx import Document as Document_docx
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
+from result import Result
 
 from src.api.v2.exceptions import handle_exception
 from src.api.v2.helpers import check_admin_rights, get_user_id
@@ -59,7 +61,7 @@ async def get_documents(
              status_code=status.HTTP_201_CREATED)
 @inject
 async def upload_document(
-    collection_id: int,
+    collection_id: UUID,
     register_user_uc: FromDishka[RegisterUserUC],
     check_admin_uc: FromDishka[CheckAdminUC],
     loading_uc: FromDishka[LoadingUC],
@@ -123,17 +125,31 @@ async def upload_document(
                 "description": metadata.description,
                 "url": metadata.url,
                 "filename": file.filename,
-                "filesize": round(file_size / (1024 * 1024), 1)
+                "filesize": int(round(file_size / (1024 * 1024), 1))
             }
         )
         loading_request = LoadDataRequest(data=document)
 
-        loaded_document = await loading_uc.execute(loading_request)
+        result: Result[str, str] = await loading_uc.execute(
+            request=loading_request,
+            collection_id=collection_id,
+            title=metadata.title,
+            file_name=file.filename,
+            file_size=file_size
+        )
+
+        if result.is_err():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Ошибка загрузки документа: {result.err()}"
+            )
+
+        document_id = UUID(result.value)
 
         return DocumentShort(
-            document_id=loaded_document.document.document_id,
-            collection_id=loaded_document.collection_id,
-            name=loaded_document.document.title
+            document_id=document_id,
+            collection_id=collection_id,
+            name=metadata.title
         )
     except Exception as exc:
         raise handle_exception(exc) from None
