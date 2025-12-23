@@ -7,7 +7,7 @@ from src.infra.adapters.vdb import QdrantGateway
 
 
 class LoadingUCProvider(Provider):
-    @provide(scope=Scope.APP)
+    @provide(scope=Scope.REQUEST)
     def provide_load_data_uc(
         self,
         vdb_gateway: QdrantGateway,

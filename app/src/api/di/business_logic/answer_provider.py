@@ -9,7 +9,7 @@ from src.infra.adapters.vdb.qdrantGateway import QdrantGateway
 
 
 class AnswerUCProvider(Provider):
-    @provide(scope=Scope.APP)
+    @provide(scope=Scope.REQUEST)
     def provide_answer_uc(
             self,
             vdb_gateway: QdrantGateway,
