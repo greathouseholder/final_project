@@ -79,3 +79,7 @@ def create_pagination_keyboard(items: list,
 cancel_button_keyboard: InlineKeyboardMarkup = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="Отмена", callback_data="cancel")]
 ])
+
+to_main_menu_button_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text="В меню", callback_data="main_menu")]
+])
