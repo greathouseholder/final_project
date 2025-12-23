@@ -108,7 +108,7 @@ async def update_coll_desc(message: Message, state: FSMContext):
     await message.answer("Введите новое описание коллекции:",
                                   reply_markup=kb.cancel_button_keyboard)
     
-@collections_router.message(st.AddNewcollection.coll_desc)
+@collections_router.message(st.AddNewcollection.coll_descr)
 async def update_coll(message: Message, state: FSMContext):
     desc = message.text
     data = await state.get_data()

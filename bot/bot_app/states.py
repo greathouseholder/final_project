@@ -14,7 +14,7 @@ class AddNewcollection(StatesGroup):
     is_public = State()
 
 #изменение коллекции
-class UpdateCollection:
+class UpdateCollection(StatesGroup):
     coll_name = State()
     coll_desc = State()
 
