@@ -37,7 +37,7 @@ class AnswerUC:
             summarised_query).value
 
         relevant_documents: List[ExtendedVectorisedDocument] = await self._vdb_gateway.search(
-            embedding=embedded_query.embedding, collection_name=request.collection_name
+            embedding=embedded_query.embedding, collection_id=request.collection_id
         )
 
         relevant_documents: List[VectorisedDocument] = self._reranker.rerank(

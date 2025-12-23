@@ -53,6 +53,6 @@ async def loading(
                 data=doc,
                 chunk_size=chunk_size,
                 chunk_overlap=chunk_overlap,
-                collection_name=collection_name,
+                # collection_name=collection_name,
             )
         )
