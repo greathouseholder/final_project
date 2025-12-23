@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from pydantic import BaseModel, Field, HttpUrl
 
@@ -33,87 +33,48 @@ class Document(BaseModel):
     file_name: str
     file_size: float
     created_at: Optional[datetime]
-    metadata: Dict[str, Any]  # тут возможны 'url' и 'relevance'
+    metadata: Dict[str, Any]
 
-
-class ConversationShort(BaseModel):
-    conversation_id: int
-    collection_id: int
-    name: str
-
-
-class Message(BaseModel):
-    message_id: int
-    conversation_id: int
-    content: str
-    role: str
-    sources: List[Document]
-
-
-class UploadDocumentRequest(BaseModel):
-    telegram_id: int
-    title: str = Field(
-        None, min_length=1, max_length=255, description="Новое название")
-    description: Optional[str] = Field(
-        None, max_length=1000, description="Новое описание")
-    url: Optional[HttpUrl] = Field(None, description="URL источника документа")
 
 # Request schemas
 
-
-class CollectionCreate(BaseModel):
-    telegram_id: int = Field(..., description="Telegram ID пользователя")
-    name: str = Field(..., min_length=1, max_length=255,
-                      description="Название коллекции")
-    description: Optional[str] = Field(
-        None, max_length=1000, description="Описание коллекции")
-    is_public: bool = Field(None, description="Параметр публичности")
+class BaseRequest(BaseModel):
+    telegram_id: int
 
 
-class CollectionUpdate(BaseModel):
-    telegram_id: int = Field(..., description="Telegram ID пользователя")
-    name: Optional[str] = Field(
-        None, min_length=1, max_length=255, description="Новое название")
-    description: Optional[str] = Field(
-        None, max_length=1000, description="Новое описание")
-
-
-class DocumentCreate(BaseModel):
-    telegram_id: int = Field(..., description="Telegram ID пользователя")
-    title: str = Field(..., min_length=1, max_length=255,
-                       description="Название документа")
+class UploadDocumentRequest(BaseRequest):
+    title: str = Field(..., min_length=1, max_length=255, description="Название документа")
+    description: Optional[str] = Field(None, max_length=1000, description="Описание документа")
     url: Optional[HttpUrl] = Field(None, description="URL источника документа")
 
 
-class DocumentUpdate(BaseModel):
-    telegram_id: int = Field(..., description="Telegram ID пользователя")
-    title: Optional[str] = Field(
-        None, min_length=1, max_length=255, description="Новое название")
-    description: Optional[str] = Field(
-        None, max_length=1000, description="Новое описание")
+class CollectionCreate(BaseRequest):
+    name: str = Field(..., min_length=1, max_length=255, description="Название коллекции")
+    description: Optional[str] = Field(None, max_length=1000, description="Описание коллекции")
+    is_public: bool = Field(default=False, description="Параметр публичности")
 
 
-class ConversationCreate(BaseModel):
-    telegram_id: int = Field(..., description="Telegram ID пользователя")
-    name: str = Field(..., min_length=1, max_length=255,
-                      description="Название диалога")
-    collection_id: int = Field(..., description="ID коллекции")
+class CollectionUpdate(BaseRequest):
+    name: Optional[str] = Field(None, min_length=1, max_length=255, description="Новое название")
+    description: Optional[str] = Field(None, max_length=1000, description="Новое описание")
+    is_public: Optional[bool] = Field(None, description="Публичность коллекции")
 
 
-class ConversationUpdate(BaseModel):
-    telegram_id: int = Field(..., description="Telegram ID пользователя")
-    name: Optional[str] = Field(
-        None, min_length=1, max_length=255, description="Новое название")
+class DocumentCreate(BaseRequest):
+    title: str = Field(..., min_length=1, max_length=255, description="Название документа")
+    url: Optional[HttpUrl] = Field(None, description="URL источника документа")
 
 
-class QueryRequest(BaseModel):
-    telegram_id: int = Field(..., description="Telegram ID пользователя")
+class DocumentUpdate(BaseRequest):
+    title: Optional[str] = Field(None, min_length=1, max_length=255, description="Новое название")
+    description: Optional[str] = Field(None, max_length=1000, description="Новое описание")
+
+
+class QueryRequest(BaseRequest):
     query_text: str = Field(..., min_length=1, description="Текст запроса")
 
 
-class SearchRequest(BaseModel):
-    telegram_id: int = Field(..., description="Telegram ID пользователя")
+class SearchRequest(BaseRequest):
     collection_id: int = Field(..., description="ID коллекции")
     number: int = Field(3, ge=1, le=10, description="Количество результатов")
-    query_text: str = Field(..., min_length=1,
-                            description="Текст поискового запроса")
+    query_text: str = Field(..., min_length=1, description="Текст поискового запроса")

@@ -1,55 +1,39 @@
-from uuid import UUID
-
 from dishka.integrations.fastapi import FromDishka, inject
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, status
 
 from src.api.v2.exceptions import handle_exception
-from src.core.application.rdb.use_cases.user import CheckPaymentUC, GetUserIdUC, RecordPaymentUC
+from src.api.v2.helpers import get_user_id
+from src.core.application.rdb.use_cases.user import CheckPaymentUC, RecordPaymentUC, RegisterUserUC
 
 router = APIRouter(tags=["users"])
 
 
-@router.post("/users/payment", status_code=status.HTTP_202_ACCEPTED)
+@router.post("/users/payment", status_code=status.HTTP_200_OK)
 @inject
 async def record_payment(
     telegram_id: int,
-    get_user_id_uc: FromDishka[GetUserIdUC],
+    register_user_uc: FromDishka[RegisterUserUC],
     record_payment_uc: FromDishka[RecordPaymentUC]
 ):
     try:
-        user_id: UUID = await get_user_id_uc.execute(telegram_id)
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="Регистрация пользователей не реализована"
-        ) from None
+        user_id = await get_user_id(telegram_id, None, register_user_uc)
+        await record_payment_uc.execute(user_id)
 
-    try:
-        record_payment_uc.execute(user_id)
     except Exception as exc:
-        return handle_exception(exc)
+        raise handle_exception(exc) from None
 
 
 @router.get("/users/payment", status_code=status.HTTP_200_OK)
 @inject
 async def check_payment(
     telegram_id: int,
-    get_user_id_uc: FromDishka[GetUserIdUC],
+    register_user_uc: FromDishka[RegisterUserUC],
     check_payment_uc: FromDishka[CheckPaymentUC]
 ):
     try:
-        user_id: UUID = await get_user_id_uc.execute(telegram_id)
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="Регистрация пользователей не реализована"
-        ) from None
+        user_id = await get_user_id(telegram_id, None, register_user_uc)
+        is_paid: bool = await check_payment_uc.execute(user_id)
+        return {"is_paid": is_paid}
 
-    try:
-        is_paid: bool = check_payment_uc.execute(user_id)
     except Exception as exc:
-        return handle_exception(exc)
-
-    return {
-        "is_paid": is_paid
-    }
+        raise handle_exception(exc) from None
