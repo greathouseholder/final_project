@@ -1,14 +1,14 @@
 from typing import List
 from uuid import UUID
 
-from result import Result, Ok, Err
+from result import Err, Ok, Result
 
 from src.core.application.embeddings.schemas.load_data import LoadDataRequest
 from src.core.domain.document import CoreDocument, VectorisedDocument
 from src.core.domain.rdb_entities import Document as RDBDocument
-from src.infra.adapters.rdb.interface import RDBRepository
 from src.infra.adapters.chunks import ChunkAdapterInterface
 from src.infra.adapters.embeddings import EmbedderInterface
+from src.infra.adapters.rdb.interface import RDBRepository
 from src.infra.adapters.vdb import VectorDBInterface
 
 
