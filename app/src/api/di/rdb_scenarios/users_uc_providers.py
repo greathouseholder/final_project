@@ -7,6 +7,7 @@ from src.core.application.rdb.use_cases.user import (
     GetTelegramIdUC,
     GetUserIdUC,
     RecordPaymentUC,
+    RegisterUserUC,
 )
 from src.infra.adapters.rdb.interface import RDBRepository
 
@@ -41,3 +42,8 @@ class UserUseCasesProvider(Provider):
     def provide_record_payment_uc(
             self, rdb_repo: RDBRepository) -> RecordPaymentUC:
         return RecordPaymentUC(rdb_repo)
+
+    @provide(scope=Scope.REQUEST)
+    def provide_register_user_uc(
+            self, rdb_repo: RDBRepository) -> RegisterUserUC:
+        return RegisterUserUC(rdb_repo)

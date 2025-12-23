@@ -81,19 +81,20 @@ class RecordPaymentUC:
 
         await self.rdb_repo.update_user(user_id, **updates)
 
-    class RegisterUserUC:
-        """Автоматически регистрирует пользователя при первом обращении"""
 
-        def __init__(self, rdb_repo: RDBRepository):
-            self.rdb_repo = rdb_repo
+class RegisterUserUC:
+    """Автоматически регистрирует пользователя при первом обращении"""
 
-        async def execute(self, telegram_id: int) -> User:
-            user = await self.rdb_repo.get_user_by_telegram_id(telegram_id)
-            if user:
-                return user
-            return await self.rdb_repo.create_user(
-                telegram_id=telegram_id,
-                role="user",
-                is_paid=False,
-                attempt_count=0
-            )
+    def __init__(self, rdb_repo: RDBRepository):
+        self.rdb_repo = rdb_repo
+
+    async def execute(self, telegram_id: int) -> User:
+        user = await self.rdb_repo.get_user_by_telegram_id(telegram_id)
+        if user:
+            return user
+        return await self.rdb_repo.create_user(
+            telegram_id=telegram_id,
+            role="user",
+            is_paid=False,
+            attempt_count=0
+        )
