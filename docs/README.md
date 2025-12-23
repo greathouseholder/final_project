@@ -79,14 +79,14 @@ graph TD
 
 | Компонент              | Технология                          | Обоснование |
 |------------------------|-------------------------------------|-------------|
-| **Backend**            | Python, FastAPI, dishka (DI)         | Асинхронность, удобное DI, быстрый разработческий цикл |
+| **Backend**            | Python, FastAPI, dishka         | Асинхронность, удобное DI, быстрый разработческий цикл |
 | **Telegram Bot**       | aiogram 3.x                         | Современный асинхронный фреймворк с FSM |
-| **Vector DB**          | Qdrant / Chroma | Qdrant — production-ready, фильтры по метаданным, масштабируемость |
+| **Vector DB**          | Qdrant | Qdrant — production-ready, фильтры по метаданным, масштабируемость |
 | **Эмбеддинги**         | FRIDA        | Лидер на MTEB Russian leaderboard 2025 |
-| **Реранкер**           | TBA   | Улучшение качества топ-5 результатов |
-| **LLM**                | GigaChat API / YandexGPT            | Лучшая поддержка русского юридического языка |
+| **Реранкер**           | BGE   | Улучшение качества топ-5 результатов |
+| **LLM**                | GigaChat API            | Лучшая поддержка русского юридического языка |
 | **Оркестрация RAG**    | LangChain                           | Готовые цепочки retrieval + generation |
-| **БД метаданных**      | SQLAlchemy + PostgreSQL | Хранение пользователей, подписок, коллекций |
+| **БД метаданных**      | SQLAlchemy + SQLite | Хранение пользователей, подписок, коллекций |
 | **Контейнеризация**    | Docker + Docker Compose             | Локальная разработка и деплой |
 
 ### 3.2. Архитектура системы
@@ -97,12 +97,12 @@ graph TD
         Bot[Telegram Bot<br>aiogram]
         API[FastAPI Backend]
         Qdrant[Qdrant<br>Vector DB]
-        PG[PostgreSQL<br>Метаданные]
+        PG[SQLite<br>Метаданные]
         Indexer[Индексатор]
     end
 
     subgraph External[Внешние API]
-        LLM[GigaChat / YandexGPT]
+        LLM[GigaChat]
         Embed[FRIDA Embeddings]
     end
 
@@ -126,7 +126,7 @@ sequenceDiagram
     participant Search as Поисковик
     participant Reranker as Реранкер
     participant Generator as Генератор
-    participant LLM as GigaChat/YandexGPT
+    participant LLM as GigaChat
     participant DB as Qdrant
 
     User->>Bot: Текстовый вопрос
@@ -157,20 +157,20 @@ sequenceDiagram
 
 | Участник                | Роль                          | Зона ответственности |
 |-------------------------|-------------------------------|----------------------|
-| **Космынин Александр**  | **Team Lead, Backend**        | Общая архитектура, FastAPI, Dependency Injection (dishka), платёжный сервис, code review |
-| **Малакшанидзе Анна**    | **ML Engineer**               | Эмбеддинги (FRIDA), RAG-пайплайн (LangChain), реранкер, валидация качества (hit@5), индексация |
+| **Космынин Александр**  | **Team Lead, Backend**        | Общая архитектура, API (FastAPI), Dependency Injection (dishka), code review |
+| **Малакшанидзе Анна**    | **ML & Data Engineer**       | Эмбеддинги (FRIDA), RAG-пайплайн (LangChain), реранкер (BGE), валидация качества (hit@5), индексация, RDB (SQLAlchemy + SQLite), VDB (Qdrant) |
 | **Дугаев Дмитрий**      | **DevOps & QA**               | Docker, CI/CD, тесты (pytest), инфраструктура, мониторинг |
-| **Белоусов Тимофей**    | **Frontend & Bot Developer**  | Telegram-бот (aiogram), UX/UI, обработчики, счётчик запросов и лимиты |
+| **Белоусов Тимофей**    | **Frontend & Bot Developer**  | Telegram-бот (aiogram), UX/UI, обработчики, платёжный сервис (Telegram Payments)|
 
 ## 5. План разработки MVP
 
 | Блок | Задачи | Оценка (часы) | Ответственный |
 |------|--------|---------------|---------------|
-| **1. Данные и векторы** | Выбор и внедрение FRIDA, слой работы с Qdrant/Chroma, пайплайн индексации и ретривала | 24–40 | Анна |
+| **1. Данные и векторы** | Выбор и внедрение FRIDA, слой работы с Qdrant, разработка RDB, пайплайн индексации и ретривала  | 24–40 | Анна |
 | **2. RAG & ML сервисы** | LangChain-цепочка, слой генерации, реранкер, тестовый датасет + hit@5 | 24–32 | Анна |
 | **3. Backend** | FastAPI API, dishka DI, контракты | 24–32 | Александр |
-| **4. Telegram Бот** | aiogram, обработчики, интеграция с API, счётчик запросов | 24–32 | Тимофей |
-| **5. Платёжный сервис** | Логика подписки, интеграция с платёжным шлюзом | 24–32 | Александр |
-| **6. DevOps & QA** | CI/CD, pytest, docker-compose | 24–32 | Дмитрий |
+| **4. Telegram Бот** | aiogram, обработчики, интеграция с API, счётчик запросов, платёжный сервис | 24–32 | Тимофей |
+| **5. DevOps & QA** | CI/CD, pytest, docker-compose | 24–32 | Дмитрий |
 
 **Общий срок реализации MVP:** 3-4 недели при параллельной работе членов команды.
+
