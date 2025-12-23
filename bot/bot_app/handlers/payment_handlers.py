@@ -14,7 +14,7 @@ async def pay(callback: CallbackQuery, bot: Bot):
     is_paid: bool = False
     is_paid_info: Dict = await sh.is_paid(callback.from_user.id)
     if "detail" in is_paid_info:
-        await callback.message.answer(f"Ошибка: {is_paid_info.get("detail")}")
+        await callback.message.answer(f"Ошибка: {is_paid_info.get('detail')}")
     else:
         is_paid = is_paid_info.get("is_paid")
     if is_paid:

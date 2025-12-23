@@ -41,12 +41,12 @@ async def set_coll_descr(message: Message, state: FSMContext):
     await message.answer("Приватная или публичная коллекция?", reply_markup=kb.is_public_keyboard)
 
 #добавление
-@collections_router.callback_query(st.StateAndCallbackStartsWithFilter("public_", st.AddNewcollection.is_public))
+@collections_router.callback_query(F.data.startswith('public_'))
 async def set_is_public(callback: CallbackQuery, state: FSMContext):
     await state.clear()
     is_public: bool = int(callback.data[-1])
     data: Dict = await state.get_data()
-    user_id: int = await callback.from_user.id
+    user_id: int = callback.from_user.id
     coll_name: str = data.get("name", "Без имени")
     coll_descr: str = data.get("descr", "Без описания")
     await callback.answer()
@@ -72,7 +72,8 @@ async def collections_actions(callback: CallbackQuery, state: FSMContext):
         await state.update_data(collections=collections, current_page=0)
         await callback.message.edit_text('Выберите коллекцию:', reply_markup=keyboard)
 
-@collections_router.callback_query(st.StateAndCallbackStartsWithFilter("select_collection:", st.ViewCollections.view))
+@collections_router.callback_query(st.StateAndCallbackStartsWithFilter("select_collection:",
+                                                                       st.ViewCollections.view))
 async def other_actions(callback: CallbackQuery, state: FSMContext):
     await state.update_data(id=int(callback.data[18:]))
     await callback.answer()

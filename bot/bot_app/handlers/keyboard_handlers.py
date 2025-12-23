@@ -41,4 +41,4 @@ async def go_to_page(callback: CallbackQuery, state: FSMContext):
 @keyboard_router.callback_query(F.data == 'pay')
 async def handle_pay(callback: CallbackQuery):
     await callback.answer()
-    await callback.message.edit_text("Хотите ли Вы оплатить подписку", reply_markup=kb.payment_keyboard)
+    await callback.message.edit_text("Хотите ли Вы оплатить подписку?", reply_markup=kb.payment_keyboard)
