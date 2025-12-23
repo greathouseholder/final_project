@@ -76,7 +76,7 @@ async def search_doc_query(message: Message, state: FSMContext):
     coll_id = data.get('coll_id')
     user_id = message.from_user.id
     number_of_sources = data.get("number_of_sources", "Не указано")
-    response = sh.search_docs(coll_id, user_id, number_of_sources, query)
+    response = await sh.search_docs(coll_id, user_id, number_of_sources, query)
     if "detail" in response:
         await message.answer(f"Ошибка: {response['detail']}")
     else:
