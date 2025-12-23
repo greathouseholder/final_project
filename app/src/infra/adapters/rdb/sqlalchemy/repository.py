@@ -1,14 +1,16 @@
 from typing import List, Optional
 from uuid import UUID
 
-from sqlalchemy import select, update, delete
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.src.core.domain.rdb_entities import User, DocumentCollection, Document
-from app.src.core.application.rdb.schemas.collection import CreateCollectionRequest, UpdateCollectionRequest
+from app.src.core.application.rdb.schemas.collection import (
+    CreateCollectionRequest,
+    UpdateCollectionRequest,
+)
 from app.src.core.application.rdb.schemas.document import UpdateDocumentRequest
+from app.src.core.domain.rdb_entities import Document, DocumentCollection, User
 from app.src.infra.adapters.rdb.interface import RDBRepository
-from app.src.infra.adapters.rdb.sqlalchemy.models import UserModel, CollectionModel, DocumentModel
+from app.src.infra.adapters.rdb.sqlalchemy.models import CollectionModel, DocumentModel, UserModel
+from sqlalchemy import delete, select, update
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class SQLAlchemyRDBRepository(RDBRepository):

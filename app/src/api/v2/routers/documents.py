@@ -8,7 +8,7 @@ from docx import Document as Document_docx
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 
 from src.api.v2.exceptions import handle_exception
-from src.api.v2.schemas import Document, DocumentShort, DocumentUpdate
+from src.api.v2.schemas import Document, DocumentShort, DocumentUpdate, UploadDocumentRequest
 from src.core.application.embeddings.schemas.load_data import LoadDataRequest
 from src.core.application.embeddings.use_cases.load_data import LoadingUC
 from src.core.application.rdb.schemas import DocumentResponse, UpdateDocumentRequest
@@ -71,17 +71,14 @@ async def upload_document(
     get_user_id_uc: FromDishka[GetUserIdUC],
     check_admin_uc: FromDishka[CheckAdminUC],
     loading_uc: FromDishka[LoadingUC],
-    telegram_id: int = Form(...),
-    title: str = Form(...),
-    description: str = Form(None),
-    url: str = Form(None),
+    metadata: UploadDocumentRequest,
     file: UploadFile = File(...)
 ):
     """
     Загрузить новый документ.
     """
     try:
-        user_id: UUID = await get_user_id_uc.execute(telegram_id)
+        user_id: UUID = await get_user_id_uc.execute(metadata.telegram_id)
     except ValueError as error:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -146,9 +143,9 @@ async def upload_document(
     document = CoreDocument(
         text=text,
         metadata={
-            "title": title,
-            "description": description,
-            "url": url,
+            "title": metadata.title,
+            "description": metadata.description,
+            "url": metadata.url,
             "filename": file.filename,
             "filesize": round(file_size / (1024 * 1024), 1)
         }
