@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from src.core.domain.rdb_entities import User
-from src.core.infra.adapters.rdb.interface import RDBRepository
+from src.infra.adapters.rdb.interface import RDBRepository
 
 
 class CheckAdminUC:
@@ -48,6 +48,7 @@ class GetAttemptCountUC:
 
 class CheckPaymentUC:
     """Проверяет, является ли пользователь платящим (подписка активна)"""
+
     def __init__(self, rdb_repo):
         self.rdb_repo = rdb_repo
 
@@ -64,10 +65,12 @@ class RecordPaymentUC:
     Обычно вызывается после успешной оплаты подписки.
     Можно также сбросить attempt_count, если это нужно по логике.
     """
+
     def __init__(self, rdb_repo):
         self.rdb_repo = rdb_repo
 
-    async def execute(self, user_id: UUID, reset_attempts: bool = True) -> None:
+    async def execute(
+            self, user_id: UUID, reset_attempts: bool = True) -> None:
         user = await self.rdb_repo.get_user_by_id(user_id)
         if not user:
             raise ValueError(f"User with id {user_id} not found")
@@ -80,6 +83,7 @@ class RecordPaymentUC:
 
     class RegisterUserUC:
         """Автоматически регистрирует пользователя при первом обращении"""
+
         def __init__(self, rdb_repo: RDBRepository):
             self.rdb_repo = rdb_repo
 
