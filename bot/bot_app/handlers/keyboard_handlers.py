@@ -30,12 +30,12 @@ async def go_to_page(callback: CallbackQuery, state: FSMContext):
     if "documents" in data:
         documents = data.get("documents", [])
         current_page = int(callback.data.split("_")[1])
-        keyboard = kb.create_pagination_keyboard(documents, "document", current_page)
+        keyboard = kb.create_pagination_keyboard(documents, "d", current_page)
         await callback.message.edit_text('Выберите документ:', reply_markup=keyboard)
     elif "collections" in data:
         collections = data.get("collections", [])
         current_page = int(callback.data.split("_")[1])
-        keyboard = kb.create_pagination_keyboard(collections, "collection", current_page)
+        keyboard = kb.create_pagination_keyboard(collections, "c", current_page)
         await callback.message.edit_text('Выберите коллекцию:', reply_markup=keyboard)
 
 @keyboard_router.callback_query(F.data == 'pay')
