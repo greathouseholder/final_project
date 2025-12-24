@@ -95,12 +95,12 @@ async def view_coll_name(callback: CallbackQuery, state: FSMContext):
     if "detail" in response:
         await callback.message.answer(f'Ошибка: {str(response.get('detail'))}')
     else:
-        created_at: datetime = response.get('created_at')
-        iso_created_at: str = created_at.isoformat()
+        created_at: str = response.get('created_at')
+        print(created_at)
         is_public: bool = response.get('is_public')
         await callback.message.answer(f"<b> {response.get('name', -1)} </b> \n \n"
                                     f"Описание: {response.get('description', 'без описания')}\n"
-                                    f"Время создания: {iso_created_at}\n"
+                                    f"Время создания: {created_at}\n"
                                     f"Количество документов: {response.get('document_count')}\n"
                                     f"Публичная: {'да' if is_public else 'нет'}\n")
 
