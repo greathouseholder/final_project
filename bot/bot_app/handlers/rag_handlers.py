@@ -4,6 +4,7 @@ from aiogram import F, Router
 from aiogram.types import CallbackQuery, Message, BufferedInputFile
 from aiogram.fsm.context import FSMContext
 import json
+from uuid import UUID
 
 from . import server_handlers as sh
 from bot_app import states as st
@@ -27,16 +28,16 @@ async def rag_choose_coll(callback: CallbackQuery, state: FSMContext):
         await callback.message.answer(collections[0]["error"])
         await state.clear()
     else:
-        keyboard = kb.create_pagination_keyboard(collections)
+        keyboard = kb.create_pagination_keyboard(collections, "c")
         await state.update_data(collections=collections, current_page=0)
         await callback.message.edit_text('Выберите коллекцию:', reply_markup=keyboard)
 
 #ввод запроса
-@rag_router.callback_query(st.StateAndCallbackStartsWithFilter("select_collection:",
+@rag_router.callback_query(st.StateAndCallbackStartsWithFilter("c:",
                                                                  st.InputQuery.choose_coll))
 async def rag_input(callback: CallbackQuery, state: FSMContext):
     await state.set_state(st.InputQuery.input_query)
-    await state.update_data(coll_id=int(callback.data[18:]))
+    await state.update_data(coll_id=UUID(callback.data.split(':')[1]))
     await callback.answer('')
     await callback.message.answer('Введите Ваш запрос: ', reply_markup=kb.cancel_button_keyboard)
 
@@ -46,7 +47,7 @@ async def cancel_rag_input(callback: CallbackQuery, state: FSMContext):
     await state.set_state(st.InputQuery.choose_coll)
     data = await state.get_data()
     collections = data.get("collections", [])
-    keyboard = kb.create_pagination_keyboard(collections)
+    keyboard = kb.create_pagination_keyboard(collections, "c")
     await callback.message.edit_text('Выберите коллекцию:', reply_markup=keyboard)
 
 #отправка запроса на сервер
@@ -55,7 +56,7 @@ async def rag_query(message: Message, state: FSMContext):
     await state.update_data(query=message.text)
     data = await state.get_data()
     query = data.get('query')
-    coll_id = data.get('coll_id')
+    coll_id = UUID(data.get('coll_id'))
     user_id = message.from_user.id
     response, sources = await sh.send_rag(coll_id, user_id, query)
     if "detail" in sources:
