@@ -112,7 +112,7 @@ async def add_doc(coll_id: str, user_id: int, title: str,
      async with aiohttp.ClientSession() as session:
         form_data = aiohttp.FormData()
         form_data.add_field(
-            'collection_id',
+            'collection_id_new',
             coll_id
         )
         form_data.add_field(
