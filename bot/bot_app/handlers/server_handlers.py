@@ -83,7 +83,7 @@ async def get_collection(user_id: int, coll_id: UUID):
                     return await response.json()
     except aiohttp.ClientError:
         return {"detail": "Ошибка подключения"}
-    except Exception:
+    #except Exception:
         return {"detail": "Неизвестная ошибка"}
 
 #обновить информацию о коллекции
@@ -102,7 +102,7 @@ async def update_coll(user_id: int, coll_id: UUID, name: str, is_public: bool, d
                 timeout=aiohttp.ClientTimeout(total=30)) as response:
                 return await response.json()
     except aiohttp.ClientError as e:
-        return {"detail": f"Ошибка подключения"}
+        return {"detail": "Ошибка подключения"}
     #except Exception as e:
         return {"detail": "Неизвестная ошибка"}
 
@@ -157,7 +157,7 @@ async def update_doc(user_id: int,
                         "telegram_id": user_id,
                         "title": name,
                         "description": desc,
-                        "document_id": doc_id
+                        "document_id": str(doc_id)
                 },
                 timeout=aiohttp.ClientTimeout(total=30)) as response:
                 return await response.json()
@@ -253,7 +253,7 @@ async def send_rag(collection_id: UUID, telegram_id: int, query_text: str):
                 json= {
                     "telegram_id": telegram_id,
                     "query_text": query_text,
-                    "collection_id": collection_id
+                    "collection_id": str(collection_id)
                 },
                 timeout=aiohttp.ClientTimeout(total=10)
             ) as response:  
@@ -274,7 +274,7 @@ async def search_docs(collection_id: UUID, telegram_id: int, number_of_sources: 
                     "telegram_id": telegram_id,
                     "number_of_sources": number_of_sources,
                     "query_text": query_text,
-                    "collection_id": collection_id
+                    "collection_id": str(collection_id)
                 },
                 timeout=aiohttp.ClientTimeout(total=10)
             ) as response:  
