@@ -43,7 +43,7 @@ async def view_dbs(callback: CallbackQuery) -> None:
     except aiohttp.ClientError as e:
         await callback.message.answer("Ошибка подключения")
         await callback.answer()
-    except Exception as e:
+    #except Exception as e:
         await callback.message.answer("Неизвестная ошибка")
         await callback.answer()
 
@@ -70,7 +70,7 @@ async def add_collection_server(telegram_id: int,
                     return f"Ошибка: {data['detail']}"
     except aiohttp.ClientError as e:
         return "Ошибка подключения"
-    except Exception as e:
+    #except Exception as e:
         return "Неизвестная ошибка"
 
 #обновить информацию о коллекции
@@ -90,7 +90,7 @@ async def update_coll(user_id: int, coll_id: UUID, name: str, is_public: bool, d
                 return await response.json()
     except aiohttp.ClientError as e:
         return {"detail": f"Ошибка подключения"}
-    except Exception as e:
+    #except Exception as e:
         return {"detail": "Неизвестная ошибка"}
 
 #добавить документ в коллекцию
@@ -127,7 +127,7 @@ async def get_doc(user_id: int, coll_id: UUID, doc_id: UUID):
                 return await response.json()
     except aiohttp.ClientError as e:
         return {"detail": "Ошибка подключения"}
-    except Exception as e:
+    #except Exception as e:
         return {"detail": "Неизвестная ошибка"}
     
 #изменить информацию о документе
@@ -150,7 +150,7 @@ async def update_doc(user_id: int,
                 return await response.json()
     except aiohttp.ClientError as e:
         return {"detail": "Ошибка подключения"}
-    except Exception as e:
+    #except Exception as e:
         return {"detail": "Неизвестная ошибка"}
 
 #удалить коллекцию
@@ -167,7 +167,7 @@ async def delete_collection_server(collection_id: UUID, user_id: int) -> str:
         return status_text
     except aiohttp.ClientError as e:
         return "Ошибка подключения"
-    except Exception as e:
+    #except Exception as e:
         return "Неизвестная ошибка"
     
 #удалить документ из коллекции
@@ -184,7 +184,7 @@ async def delete_doc(coll_id: UUID, doc_id: UUID, user_id: int) -> str:
         return status_text
     except aiohttp.ClientError as e:
         return "Ошибка подключения"
-    except Exception as e:
+    #except Exception as e:
         return "Неизвестная ошибка"
     
 #список коллекций для создания клавиатуры
@@ -206,7 +206,7 @@ async def view_dbs_internal(user_id: int) -> List[Dict[str, str]]:
     except aiohttp.ClientError as e:
         data = [{"error": "Ошибка подключения"}]
         return data
-    except Exception as e:
+    #except Exception as e:
         data = [{"error": "Неизвестная ошибка"}]
         return data
 
@@ -227,7 +227,7 @@ async def view_docs(user_id: int, coll_id: UUID):
     except aiohttp.ClientError as e:
         data = [{"error": "Ошибка подключения"}]
         return data
-    except Exception as e:
+    #except Exception as e:
         data = [{"error": "Неизвестная ошибка"}]
         return data
 
@@ -248,7 +248,7 @@ async def send_rag(collection_id: UUID, telegram_id: int, query_text: str):
                 return data
     except aiohttp.ClientError:
         return {"detail": "Ошибка подключения"}
-    except Exception:
+    #except Exception:
         return {"detail": "Неизвестная ошибка"}
     
 #запрос на поиск документов
@@ -269,7 +269,7 @@ async def search_docs(collection_id: UUID, telegram_id: int, number_of_sources: 
                 return data
     except aiohttp.ClientError as e:
         return {"detail": "Ошибка подключения"}
-    except Exception as e:
+    #except Exception as e:
         return {"detail": "Неизвестная ошибка"}
 
 #куплена ли подписка
@@ -284,7 +284,7 @@ async def is_paid(user_id: int):
                 return data
     except aiohttp.ClientError as e:
         return {"detail": "Ошибка подключения"}
-    except Exception as e:
+    #except Exception as e:
         return {"detail": "Неизвестная ошибка"}
 
 #оплата прошла успешно
@@ -301,7 +301,7 @@ async def subscription(user_id: int):
                 pass
     except aiohttp.ClientError as e:
         return {"detail": "Ошибка подключения"}
-    except Exception as e:
+    #except Exception as e:
         return {"detail": "Неизвестная ошибка"}
     
 async def is_alive():
@@ -314,5 +314,5 @@ async def is_alive():
                 return response
     except aiohttp.ClientError as e:
         return {"detail": "Ошибка подключения"}
-    except Exception as e:
+    #except Exception as e:
         return {"detail": "Неизвестная ошибка"}
