@@ -168,8 +168,14 @@ async def add_doc(message: Message, state: FSMContext):
     telegram_id: int = message.from_user.id
     title: str = name
     description: str = descr
-    collection_id: str = str(coll_id)
-    response = await sh.add_doc(collection_id, telegram_id, title, description, url, file_bytes, filename)
+    response = await sh.add_doc(
+        str(coll_id),
+        str(telegram_id),
+        title,
+        description,
+        url,
+        file_bytes,
+        filename)
     if "detail" in response:
         await message.answer(f'Ошибка: {response.get("detail")}')
     else:

@@ -93,7 +93,7 @@ async def view_coll_name(callback: CallbackQuery, state: FSMContext):
     user_id: int = callback.from_user.id
     response = await sh.get_collection(user_id, coll_id)
     if "detail" in response:
-        await callback.message.answer(f'Ошибка: {str(response.get('detail'))}')
+        await callback.message.answer(f'Ошибка: {str(response.get("detail"))}')
     else:
         created_at: str = response.get('created_at')
         print(created_at)

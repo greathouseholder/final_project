@@ -64,8 +64,8 @@ async def upload_document(
     register_user_uc: FromDishka[RegisterUserUC],
     check_admin_uc: FromDishka[CheckAdminUC],
     loading_uc: FromDishka[LoadingUC],
-    telegram_id: int = Form(...),
-    collection_id_new: UUID = Form(...),
+    telegram_id: str = Form(...),
+    collection_id_new: str = Form(...),
     title: str = Form(...),
     description: str | None = Form(None),
     url: str | None = Form(None),
@@ -75,8 +75,10 @@ async def upload_document(
     Загрузить новый документ.
     """
     try:
-        user_id = await get_user_id(telegram_id, None, register_user_uc)
+        user_id = await get_user_id(int(telegram_id), None, register_user_uc)
         await check_admin_rights(user_id, check_admin_uc)
+
+        collection_id_new = str(collection_id_new)
 
         allowed_extensions = ['.txt', '.pdf', '.doc', '.docx']
         file_extension = file.filename.split(
