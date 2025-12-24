@@ -17,7 +17,7 @@ class Config:
 
     QDRANT_HOST: str = os.getenv("QDRANT_HOST", "localhost")
     QDRANT_PORT: int = int(os.getenv("QDRANT_PORT", "6333"))
-    QDRANT_API_KEY: str | None = os.getenv("QDRANT_API_KEY")  # None для локального Qdrant
+    QDRANT_API_KEY: str | None = os.getenv("QDRANT_API_KEY")
 
     @property
     def qdrant_url(self) -> str:
