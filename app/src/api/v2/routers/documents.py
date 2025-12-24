@@ -65,7 +65,7 @@ async def upload_document(
     check_admin_uc: FromDishka[CheckAdminUC],
     loading_uc: FromDishka[LoadingUC],
     telegram_id: int = Form(...),
-    collection_id: UUID = Form(...),
+    collection_id_new: UUID = Form(...),
     title: str = Form(...),
     description: str | None = Form(None),
     url: str | None = Form(None),
@@ -140,7 +140,7 @@ async def upload_document(
 
         result: Result[str, str] = await loading_uc.execute(
             request=loading_request,
-            collection_id=collection_id,
+            collection_id=collection_id_new,
             title=title,
             file_name=file.filename,
             file_size=file_size
@@ -156,7 +156,7 @@ async def upload_document(
 
         return DocumentShort(
             document_id=document_id,
-            collection_id=collection_id,
+            collection_id=collection_id_new,
             name=title
         )
     except Exception as exc:
