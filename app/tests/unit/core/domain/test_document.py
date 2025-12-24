@@ -9,13 +9,9 @@ from src.core.domain.document import CoreDocument, ExtendedVectorisedDocument, V
 
 
 def _dump(obj: Any) -> dict:
-    """
-    Универсальная "сериализация" без знания, dataclass это или pydantic.
-    Так мы дергаем больше кода модели и делаем тест устойчивым.
-    """
-    if hasattr(obj, "model_dump"):  # pydantic v2
+    if hasattr(obj, "model_dump"):
         return obj.model_dump()
-    if hasattr(obj, "dict"):  # pydantic v1
+    if hasattr(obj, "dict"):
         return obj.dict()
     if dataclasses.is_dataclass(obj):
         return dataclasses.asdict(obj)
