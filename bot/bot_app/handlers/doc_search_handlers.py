@@ -8,7 +8,7 @@ from uuid import UUID
 from . import server_handlers as sh
 from bot_app import states as st
 import bot_app.keyboards as kb
-from config import COLLECTION_EXAMPLE #коллекция для тестирования
+#from config import COLLECTION_EXAMPLE #коллекция для тестирования
 
 doc_search_router: Router = Router()
 
@@ -16,8 +16,8 @@ doc_search_router: Router = Router()
 @doc_search_router.callback_query(F.data == 'search')
 async def doc_choose_coll(callback: CallbackQuery, state: FSMContext):
     await state.set_state(st.DocSearch.choose_coll)
-    collections = COLLECTION_EXAMPLE #тест
-    #collections: List[Dict[str, str]] = await sh.view_dbs_internal(callback.from_user.id) #не тест
+    #collections = COLLECTION_EXAMPLE #тест
+    collections: List[Dict[str, str]] = await sh.view_dbs_internal(callback.from_user.id) #не тест
     if len(collections) == 0:
         await callback.answer()
         await callback.message.answer("Список коллекций пуст")

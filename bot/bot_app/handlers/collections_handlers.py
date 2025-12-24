@@ -9,7 +9,7 @@ from datetime import datetime
 from . import server_handlers as sh
 import bot_app.keyboards as kb
 from bot_app import states as st
-from config import COLLECTION_EXAMPLE #коллекция для тестирования
+#from config import COLLECTION_EXAMPLE #коллекция для тестирования
 
 collections_router: Router = Router()
 
@@ -62,8 +62,8 @@ async def set_is_public(callback: CallbackQuery, state: FSMContext):
 @collections_router.callback_query(F.data == "collections_actions")
 async def collections_actions(callback: CallbackQuery, state: FSMContext):
     await state.set_state(st.ViewCollections.view)
-    collections = COLLECTION_EXAMPLE #тест
-    #collections: List[Dict[str, str]] = await sh.view_dbs_internal(callback.from_user.id) #не тест
+    #collections = COLLECTION_EXAMPLE #тест
+    collections: List[Dict[str, str]] = await sh.view_dbs_internal(callback.from_user.id) #не тест
     if len(collections) == 0:
         await callback.answer()
         await callback.message.answer("Список коллекций пуст")
