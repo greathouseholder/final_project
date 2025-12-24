@@ -165,14 +165,11 @@ async def add_doc(message: Message, state: FSMContext):
     if hasattr(file_bytes, 'read'):
         file_bytes = file_bytes.read()
     filename: str = message.document.file_name
-    json: Dict = {
-        "telegram_id": message.from_user.id,
-        "title": name,
-        "description": descr,
-        "url": url,
-        "collection_id": str(coll_id)
-    }
-    response = await sh.add_doc(coll_id, json, file_bytes, filename)
+    telegram_id: int = message.from_user.id
+    title: str = name
+    description: str = descr
+    collection_id: str = str(coll_id)
+    response = await sh.add_doc(collection_id, telegram_id, title, description, url, file_bytes, filename)
     if "detail" in response:
         await message.answer(f'Ошибка: {response.get("detail")}')
     else:
