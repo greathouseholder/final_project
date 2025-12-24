@@ -28,14 +28,14 @@ router = APIRouter(prefix="/collections", tags=["collections"])
 async def get_collections(
     telegram_id: int,
     register_user_uc: FromDishka[RegisterUserUC],
-    get_avaliable_collections_uc: FromDishka[GetAvailableCollectionsUC],
+    get_available_collections_uc: FromDishka[GetAvailableCollectionsUC],
 ) -> List[CollectionShort]:
     """
     Получить список коллекций пользователя.
     """
     try:
         user_id = await get_user_id(telegram_id, None, register_user_uc)
-        available_collections = await get_avaliable_collections_uc.execute(user_id)
+        available_collections = await get_available_collections_uc.execute(user_id)
 
         return [
             CollectionShort(
