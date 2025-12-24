@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+
 from src.core.domain.document import CoreDocument
 
 

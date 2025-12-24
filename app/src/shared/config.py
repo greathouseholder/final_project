@@ -44,5 +44,7 @@ class Config:
     APP_CORS_ORIGINS_LIST: list[str] = field(default_factory=_parse_cors_origins)
     APP_NGINX_PREFIX: str = os.getenv("APP_NGINX_PREFIX", "/")
 
+    RELATIONAL_DATABASE_URL: str = ...
+
 
 config = Config()

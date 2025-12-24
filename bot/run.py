@@ -11,6 +11,7 @@ from bot_app.handlers.rag_handlers import rag_router
 from bot_app.handlers.doc_search_handlers import doc_search_router
 from bot_app.handlers.collections_handlers import collections_router
 from bot_app.handlers.documents_handlers import documents_router
+from bot_app.handlers.payment_handlers import payment_router
 
 bot: Bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp: Dispatcher = Dispatcher()
@@ -22,7 +23,8 @@ async def main() -> None:
                        rag_router,
                        doc_search_router,
                        collections_router,
-                       documents_router)
+                       documents_router,
+                       payment_router)
     await bot.delete_webhook(drop_pending_updates=True)
     print("Бот запущен")
     await dp.start_polling(bot)

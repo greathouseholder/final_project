@@ -1,7 +1,7 @@
-from src.core.domain.document import CoreDocument
-from src.infra.adapters.chunks import ChunkAdapterInterface
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
+from src.core.domain.document import CoreDocument
+from src.infra.adapters.chunks import ChunkAdapterInterface
 from src.infra.adapters.documents.langchain import LangchainAdapter
 
 

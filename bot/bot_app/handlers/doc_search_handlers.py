@@ -3,6 +3,7 @@ from typing import Dict, List
 from aiogram import F, Router
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
+from uuid import UUID
 
 from . import server_handlers as sh
 from bot_app import states as st
@@ -26,15 +27,15 @@ async def doc_choose_coll(callback: CallbackQuery, state: FSMContext):
         await callback.message.answer(collections[0]["error"])
         await state.clear()
     else:
-        keyboard = kb.create_pagination_keyboard(collections)
+        keyboard = kb.create_pagination_keyboard(collections, "c")
         await state.update_data(collections=collections, current_page=0)
         await callback.message.edit_text('Выберите коллекцию:', reply_markup=keyboard)
 
 #выбор количества источников
-@doc_search_router.callback_query(st.StateAndCallbackStartsWithFilter("select_collection:",
+@doc_search_router.callback_query(st.StateAndCallbackStartsWithFilter("c:",
                                                                  st.DocSearch.choose_coll))
 async def doc_search_choose_number_of_sources(callback: CallbackQuery, state: FSMContext):
-    await state.update_data(coll_id=callback.data[18:])
+    await state.update_data(coll_id=UUID(callback.data.split(':')[1]))
     await state.set_state(st.DocSearch.choose_number_of_sources)
     await callback.message.edit_text(text="Выберите количество источников, которое хотите получить",
                                      reply_markup=kb.number_of_sources)
@@ -47,7 +48,7 @@ async def cancel_doc_search_number_of_sources_choose(callback: CallbackQuery,
     await state.set_state(st.DocSearch.choose_coll)
     data = await state.get_data()
     collections = data.get("collections", [])
-    keyboard = kb.create_pagination_keyboard(collections)
+    keyboard = kb.create_pagination_keyboard(collections, "c")
     await callback.message.edit_text('Выберите коллекцию:', reply_markup=keyboard)
 
 #ввод запроса
@@ -73,10 +74,10 @@ async def search_doc_query(message: Message, state: FSMContext):
     await state.update_data(query=message.text)
     data = await state.get_data()
     query = data.get('query')
-    coll_id = data.get('coll_id')
+    coll_id: UUID = data.get('coll_id')
     user_id = message.from_user.id
     number_of_sources = data.get("number_of_sources", "Не указано")
-    response = sh.search_docs(coll_id, user_id, number_of_sources, query)
+    response = await sh.search_docs(coll_id, user_id, number_of_sources, query)
     if "detail" in response:
         await message.answer(f"Ошибка: {response['detail']}")
     else:

@@ -19,7 +19,8 @@ collections_actions_menu = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="Удалить документ из коллекции", callback_data="delete_doc")],
     [InlineKeyboardButton(text="Посмотреть документы", callback_data="view_docs")],
     [InlineKeyboardButton(text="Удалить коллекцию", callback_data="delete_db")],
-    [InlineKeyboardButton(text="Добавить документ в коллекцию", callback_data="add_doc")]
+    [InlineKeyboardButton(text="Добавить документ в коллекцию", callback_data="add_doc")],
+    [InlineKeyboardButton(text="Изменить коллекцию", callback_data='update_coll')]
 ])
 
 number_of_sources = InlineKeyboardMarkup(inline_keyboard=[
@@ -37,19 +38,32 @@ is_public_keyboard = InlineKeyboardMarkup(inline_keyboard=[
      InlineKeyboardButton(text="Приватная", callback_data="public_0")]
 ])
 
+document_actions_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text="Посмотреть информацию о документе", callback_data="doc_info")],
+    [InlineKeyboardButton(text="Изменить информацию о документе", callback_data="update_doc")]
+])
+
+payment_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text="Хочу", callback_data="payment"),
+     InlineKeyboardButton(text="Не хочу", callback_data="main_menu")]
+])
+
 def create_pagination_keyboard(items: list,
-                               item_type: str = "collection",
+                               item_type: str = "c",
                                page: int = 0,
                                items_per_page: int = 5) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     start = page * items_per_page
     end = start + items_per_page
     page_items = items[start:end]
+    item_type_full = "collection" if item_type == "c" else "document"
     for item in page_items:
+        _uuid = item.get(f'{item_type_full}_id')
         builder.button(
             text=f"{item.get('name', 'Без названия')[:30]}",
-            callback_data=f"select_{item_type}:{item.get(f'{item_type}_id', '')}"
+            callback_data=f"{item_type}:{str(_uuid)}"
         )
+
     builder.adjust(1) 
     
     navigation_cnt: int = 1
@@ -73,4 +87,8 @@ def create_pagination_keyboard(items: list,
 
 cancel_button_keyboard: InlineKeyboardMarkup = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="Отмена", callback_data="cancel")]
+])
+
+to_main_menu_button_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text="В меню", callback_data="main_menu")]
 ])

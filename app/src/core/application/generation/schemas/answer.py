@@ -1,4 +1,5 @@
 from enum import Enum
+from uuid import UUID
 
 from pydantic import BaseModel
 
@@ -21,4 +22,4 @@ class LLMResponse(BaseModel):
 class LLMRequest(BaseModel):
     query: str
     model: str
-    collection_name: str
+    collection_id: UUID
