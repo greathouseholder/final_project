@@ -20,6 +20,3 @@ config.py
 .vscode/
 .idea/
 .DS_Store
-
-#недоработанные тесты
-tests/

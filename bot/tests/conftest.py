@@ -56,7 +56,7 @@ async def fsm_context(storage):
     return FSMContext(storage=storage, key="test_key")
 
 @pytest.fixture
-def message(user, chat, bot) -> MagicMock:
+def message(user, chat) -> MagicMock:
     """Мок сообщения с нужными методами"""
     msg = MagicMock(spec=Message)
     msg.from_user = user
