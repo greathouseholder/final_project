@@ -2,6 +2,7 @@ from uuid import UUID
 
 from fastapi import HTTPException, status
 
+from src.core.domain.rdb_entities import User
 from src.api.v2.exceptions import handle_exception
 from src.api.v2.schemas import BaseRequest
 from src.core.application.rdb.use_cases.user import CheckAdminUC, RegisterUserUC
@@ -26,7 +27,8 @@ async def get_user_id(
         )
 
     try:
-        return await register_user_uc.execute(t_id)
+        user: User = await register_user_uc.execute(t_id)
+        return user.user_id
     except Exception as exc:
         raise handle_exception(exc) from exc
 

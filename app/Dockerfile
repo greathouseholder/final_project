@@ -16,7 +16,7 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-cache
 
 COPY src ./src
-COPY data ./data
+#COPY data ./data
 COPY scripts ./scripts
 COPY main.py .
 
