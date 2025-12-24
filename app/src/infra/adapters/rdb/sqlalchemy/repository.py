@@ -4,14 +4,11 @@ from uuid import UUID
 from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.application.rdb.schemas.collection import (
-    CreateCollectionRequest,
-    UpdateCollectionRequest,
-)
+from src.core.domain.rdb_entities import User, DocumentCollection, Document
+from src.core.application.rdb.schemas.collection import CreateCollectionRequest, UpdateCollectionRequest
 from src.core.application.rdb.schemas.document import UpdateDocumentRequest
-from src.core.domain.rdb_entities import Document, DocumentCollection, User
 from src.infra.adapters.rdb.interface import RDBRepository
-from src.infra.adapters.rdb.sqlalchemy.models import CollectionModel, DocumentModel, UserModel
+from src.infra.adapters.rdb.sqlalchemy.models import UserModel, CollectionModel, DocumentModel
 
 
 class SQLAlchemyRDBRepository(RDBRepository):
