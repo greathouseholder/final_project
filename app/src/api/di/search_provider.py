@@ -1,6 +1,7 @@
 from dishka import Provider, Scope, provide
 from qdrant_client import AsyncQdrantClient
 
+from src.shared.config import config
 from src.core.application.searching.use_cases.search import SearchUC
 from src.infra.adapters.embeddings import FridaEmbedder
 from src.infra.adapters.preprocessing.llm_preprocessor import LLMPreprocessor
@@ -11,9 +12,9 @@ from src.infra.adapters.vdb import QdrantGateway
 class SearchProvider(Provider):
     @provide(scope=Scope.APP)
     def provide_qdrant_client(self) -> AsyncQdrantClient:
-        return AsyncQdrantClient( # можно редачить, по идее
-            url="http://localhost:6333",
-            api_key=None,
+        return AsyncQdrantClient(
+            url=config.qdrant_url,
+            api_key=config.QDRANT_API_KEY,
         )
 
     @provide(scope=Scope.APP)
