@@ -17,8 +17,8 @@ async def view_docs(callback: CallbackQuery, state: FSMContext):
     user_id: int = callback.from_user.id
     data = await state.get_data()
     coll_id: UUID = data.get("id")
-    #docs = await sh.view_docs(user_id, coll_id) #не тест
-    docs: Dict = DOCUMENTS_EXAMPLE #тест
+    docs = await sh.view_docs(user_id, coll_id) #не тест
+    #docs: Dict = DOCUMENTS_EXAMPLE #тест
     await state.update_data(documents=docs)
     if len(docs) == 0:
         await callback.answer()
@@ -172,7 +172,7 @@ async def add_doc(message: Message, state: FSMContext):
         "url": url,
         "collection_id": coll_id
     }
-    response = sh.add_doc(coll_id, json, file_bytes, filename)
+    response = await sh.add_doc(coll_id, json, file_bytes, filename)
     if "detail" in response:
         await message.answer(f'Ошибка: {response.get("detail")}')
     else:
