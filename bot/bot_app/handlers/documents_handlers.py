@@ -113,7 +113,7 @@ async def update_doc(message: Message, state: FSMContext):
 @documents_router.callback_query(st.StateAndCallbackFilter("add_doc", st.ViewCollections.view))
 async def add_doc_name(callback: CallbackQuery, state: FSMContext):
     data: Dict = await state.get_data()
-    coll_id: UUID = data.get("id", "-1")
+    coll_id: UUID = data.get("id")
     await state.set_state(st.AddDoc.input_name)
     await state.update_data(id=coll_id)
     await callback.message.edit_text("Введите название документа",
