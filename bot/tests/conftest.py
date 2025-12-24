@@ -1,7 +1,8 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock
-from aiogram import Bot, Dispatcher
-from aiogram.types import User, Chat, Message, CallbackQuery, Update
+from uuid import UUID
+from aiogram import Bot
+from aiogram.types import User, Chat, Message, CallbackQuery, Document, SuccessfulPayment, PreCheckoutQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.base import StorageKey
 from aiogram.fsm.storage.memory import MemoryStorage
@@ -63,6 +64,11 @@ def message(user, chat) -> MagicMock:
     msg.chat = chat
     msg.text = "Test message"
     msg.message_id = 1
+    msg.document = Document(
+        file_id="test_file_id",
+        file_name="test.txt",
+        file_unique_id="test_unique_id"
+    )
     # Async методы
     msg.answer = AsyncMock(return_value=MagicMock(message_id=2))
     msg.answer_photo = AsyncMock()
@@ -122,3 +128,26 @@ def sample_search_response():
         "created_at": "2024-01-15",
         "metadata": {"url": "https://example.com/doc"}
     }
+
+@pytest.fixture
+def valid_uuid():
+    return UUID("123e4567-e89b-12d3-a456-426614174000")
+
+@pytest.fixture
+def pre_checkout_query(user):
+    pcq = AsyncMock(spec=PreCheckoutQuery)
+    pcq.from_user = user
+    pcq.id = "pre_checkout_123"
+    return pcq
+
+@pytest.fixture
+def successful_payment_message(user, chat):
+    msg = AsyncMock(spec=Message)
+    msg.from_user = user
+    msg.chat = chat
+    msg.successful_payment = SuccessfulPayment(
+        total_amount=10000,
+        currency="RUB",
+        invoice_payload="sub1"
+    )
+    return msg

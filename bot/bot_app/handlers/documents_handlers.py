@@ -172,7 +172,7 @@ async def add_doc(message: Message, state: FSMContext):
         "url": url,
         "collection_id": coll_id
     }
-    response = sh.add_doc(coll_id, json, file_bytes, filename)
+    response = await sh.add_doc(coll_id, json, file_bytes, filename)
     if "detail" in response:
         await message.answer(f'Ошибка: {response.get("detail")}')
     else:
