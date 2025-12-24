@@ -16,6 +16,192 @@ from src.infra.adapters.preprocessing.interface import Preprocessor
 from src.infra.adapters.prompts.jinjaPrompter import JinjaPrompter
 from src.infra.adapters.validation.interface import ValidatorInterface
 
+from uuid import uuid4
+from datetime import datetime
+from unittest.mock import AsyncMock, MagicMock
+from dataclasses import dataclass
+
+from src.core.domain.rdb_entities import User, Document, DocumentCollection
+from src.core.application.embeddings.schemas.load_data import LoadDataRequest
+from src.core.application.generation.schemas.answer import LLMRequest
+from src.core.application.searching.schemas.search import SearchRequest
+from src.core.application.rdb.schemas.collection import (
+    CreateCollectionRequest,
+    UpdateCollectionRequest,
+    CollectionResponse,
+)
+from src.core.application.rdb.schemas.document import (
+    UpdateDocumentRequest,
+    DocumentResponse,
+)
+from src.infra.adapters.chunks.interface import ChunkAdapterInterface
+from src.infra.adapters.rdb.interface import RDBRepository
+
+
+@pytest.fixture
+def sample_user_id():
+    return uuid4()
+
+
+@pytest.fixture
+def sample_collection_id():
+    return uuid4()
+
+
+@pytest.fixture
+def sample_document_id():
+    return uuid4()
+
+
+@pytest.fixture
+def sample_user(sample_user_id):
+    """Пользователь из RDB"""
+    return User(
+        user_id=sample_user_id,
+        telegram_id=123456789,
+        role="user",
+        is_paid=False,
+        attempt_count=5,
+        created_at=datetime.now(),
+        updated_at=datetime.now(),
+    )
+
+
+@pytest.fixture
+def sample_admin_user(sample_user_id):
+    """Админ пользователь"""
+    return User(
+        user_id=sample_user_id,
+        telegram_id=987654321,
+        role="admin",
+        is_paid=True,
+        attempt_count=0,
+        created_at=datetime.now(),
+        updated_at=datetime.now(),
+    )
+
+
+@pytest.fixture
+def sample_collection(sample_collection_id, sample_user_id):
+    """Коллекция из RDB"""
+    return DocumentCollection(
+        collection_id=sample_collection_id,
+        name="Test Collection",
+        description="Test Description",
+        owner_id=sample_user_id,
+        is_public=False,
+        document_count=0,
+        created_at=datetime.now(),
+        updated_at=datetime.now(),
+    )
+
+
+@pytest.fixture
+def sample_public_collection(sample_collection_id, sample_user_id):
+    """Публичная коллекция"""
+    return DocumentCollection(
+        collection_id=sample_collection_id,
+        name="Public Collection",
+        description="Public Description",
+        owner_id=sample_user_id,
+        is_public=True,
+        document_count=5,
+        created_at=datetime.now(),
+        updated_at=datetime.now(),
+    )
+
+
+@pytest.fixture
+def sample_rdb_document(sample_document_id, sample_collection_id):
+    """Документ из RDB"""
+    return Document(
+        document_id=sample_document_id,
+        collection_id=sample_collection_id,
+        title="Test Document",
+        description="Test Description",
+        file_name="test.pdf",
+        file_size=1024,
+        payload={"source": "test"},
+        created_at=datetime.now(),
+        updated_at=datetime.now(),
+    )
+
+
+@pytest.fixture
+def mock_rdb_repo():
+    """Мок RDBRepository"""
+    repo = AsyncMock(spec=RDBRepository)
+    return repo
+
+
+@pytest.fixture
+def mock_chunk_adapter():
+    """Мок ChunkAdapterInterface"""
+    adapter = MagicMock(spec=ChunkAdapterInterface)
+    adapter.split.return_value = ["Chunk 1", "Chunk 2", "Chunk 3"]
+    return adapter
+
+
+@pytest.fixture
+def sample_load_data_request(sample_core_document):
+    """Запрос на загрузку данных"""
+    return LoadDataRequest(
+        data=sample_core_document,
+        chunk_size=512,
+        chunk_overlap=50,
+    )
+
+
+@pytest.fixture
+def sample_llm_request(sample_collection_id):
+    """Запрос к LLM"""
+    return LLMRequest(
+        query="Что такое машинное обучение?",
+        collection_id=sample_collection_id,
+        model="GigaChat",
+    )
+
+
+@pytest.fixture
+def sample_search_request(sample_collection_id):
+    """Запрос на поиск"""
+    return SearchRequest(
+        query="машинное обучение",
+        collection_id=sample_collection_id,
+        model="GigaChat",
+        top_k=5,
+    )
+
+
+@pytest.fixture
+def sample_create_collection_request():
+    """Запрос на создание коллекции"""
+    return CreateCollectionRequest(
+        name="New Collection",
+        description="New Description",
+        is_public=False,
+    )
+
+
+@pytest.fixture
+def sample_update_collection_request(sample_collection_id):
+    """Запрос на обновление коллекции"""
+    return UpdateCollectionRequest(
+        collection_id=sample_collection_id,
+        name="Updated Collection",
+        description="Updated Description",
+    )
+
+
+@pytest.fixture
+def sample_update_document_request(sample_document_id):
+    """Запрос на обновление документа"""
+    return UpdateDocumentRequest(
+        document_id=sample_document_id,
+        title="Updated Title",
+        description="Updated Description",
+    )
+
 @pytest.fixture
 def sample_core_document() -> CoreDocument:
     """Базовый CoreDocument для тестов"""
