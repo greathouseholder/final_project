@@ -11,6 +11,8 @@ class User(BaseModel):
     telegram_id: int = Field(..., description="Telegram ID")
     created_at: datetime = Field(..., description="Дата создания")
     role: str = Field(..., description="Роль: 'user' или 'admin'")
+    is_paid: bool = False
+    attempt_count: int = 0
 
 
 class DocumentCollection(BaseModel):
@@ -34,4 +36,4 @@ class Document(BaseModel):
     file_size: int = Field(..., description="Размер в байтах")
     created_at: datetime = Field(..., description="Дата создания")
     path: Optional[str] = Field(None, description="Путь к файлу на диске (если нужно)")
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="Метаданные (type, source, keywords и т.д.)")
+    payload: Dict[str, Any] = Field(default_factory=dict, description="Метаданные документа")

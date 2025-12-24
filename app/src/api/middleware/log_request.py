@@ -15,7 +15,7 @@ console_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
 
 file_handler = RotatingFileHandler(
-    filename='app/src/shared/logs/api.log',
+    filename='src/shared/logs/api.log',
     maxBytes=10 * 1024 * 1024,
     backupCount=5,
     encoding='utf-8'

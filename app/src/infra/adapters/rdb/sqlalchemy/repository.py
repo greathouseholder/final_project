@@ -1,14 +1,17 @@
 from typing import List, Optional
 from uuid import UUID
 
-from sqlalchemy import select, update, delete
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.src.core.domain.rdb_entities import User, DocumentCollection, Document
-from app.src.core.application.rdb.schemas.collection import CreateCollectionRequest, UpdateCollectionRequest
-from app.src.core.application.rdb.schemas.document import UpdateDocumentRequest
-from app.src.infra.adapters.rdb.interface import RDBRepository
-from app.src.infra.adapters.rdb.sqlalchemy.models import UserModel, CollectionModel, DocumentModel
+from src.core.application.rdb.schemas.collection import (
+    CreateCollectionRequest,
+    UpdateCollectionRequest,
+)
+from src.core.application.rdb.schemas.document import UpdateDocumentRequest
+from src.core.domain.rdb_entities import Document, DocumentCollection, User
+from src.infra.adapters.rdb.interface import RDBRepository
+from src.infra.adapters.rdb.sqlalchemy.models import CollectionModel, DocumentModel, UserModel
 
 
 class SQLAlchemyRDBRepository(RDBRepository):
@@ -112,12 +115,31 @@ class SQLAlchemyRDBRepository(RDBRepository):
         stmt = update(DocumentModel).where(DocumentModel.document_id == request.document_id).values(
             title=request.title if request.title is not None else DocumentModel.title,
             description=request.description if request.description is not None else DocumentModel.description,
-            metadata=request.metadata if request.metadata is not None else DocumentModel.metadata
+            payload=request.metadata if request.metadata is not None else DocumentModel.payload
         )
         await self.session.execute(stmt)
         await self.session.commit()
 
     async def delete_document(self, document_id: UUID) -> None:
         stmt = delete(DocumentModel).where(DocumentModel.document_id == document_id)
+        await self.session.execute(stmt)
+        await self.session.commit()
+
+    async def update_user(self, user_id: UUID, **updates) -> None:
+        allowed_fields = {"is_paid", "attempt_count", "role"}
+        filtered_updates = {k: v for k, v in updates.items() if k in allowed_fields}
+        if not filtered_updates:
+            return
+
+        stmt = update(UserModel).where(UserModel.user_id == user_id).values(**filtered_updates)
+        await self.session.execute(stmt)
+        await self.session.commit()
+
+    async def increment_document_count(self, collection_id: UUID) -> None:
+        stmt = (
+            update(CollectionModel)
+            .where(CollectionModel.collection_id == collection_id)
+            .values(document_count=CollectionModel.document_count + 1)
+        )
         await self.session.execute(stmt)
         await self.session.commit()

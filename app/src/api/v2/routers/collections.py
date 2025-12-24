@@ -1,27 +1,23 @@
 from typing import List
-from uuid import UUID
 
 from dishka.integrations.fastapi import FromDishka, inject
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, status
 
 from src.api.v2.exceptions import handle_exception
+from src.api.v2.helpers import check_admin_rights, get_user_id
 from src.api.v2.schemas import Collection, CollectionCreate, CollectionShort, CollectionUpdate
 from src.core.application.rdb.schemas import (
-    CollectionResponse,
     CreateCollectionRequest,
-    CreateUserRequest,
     UpdateCollectionRequest,
-    UserResponse,
 )
-from src.core.application.rdb.use_cases import (
-    CheckAdminUC,
+from src.core.application.rdb.use_cases.collection import (
     CreateCollectionUC,
     DeleteCollectionUC,
     GetAvailableCollectionsUC,
     GetCollectionUC,
-    GetUserIdUC,
-    UpdateCollectionUC,  # требуется CreateUserUC
+    UpdateCollectionUC,
 )
+from src.core.application.rdb.use_cases.user import CheckAdminUC, RegisterUserUC
 
 router = APIRouter(prefix="/collections", tags=["collections"])
 
@@ -30,31 +26,26 @@ router = APIRouter(prefix="/collections", tags=["collections"])
 @inject
 async def get_collections(
     telegram_id: int,
-    get_user_id_uc: FromDishka[GetUserIdUC],
+    register_user_uc: FromDishka[RegisterUserUC],
     get_avaliable_collections_uc: FromDishka[GetAvailableCollectionsUC],
 ) -> List[CollectionShort]:
     """
     Получить список коллекций пользователя.
     """
     try:
-        user_id: UUID = await get_user_id_uc.execute(telegram_id)
-    except ValueError as error:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(error)
-        ) from None
+        user_id = await get_user_id(telegram_id, None, register_user_uc)
+        available_collections = await get_avaliable_collections_uc.execute(user_id)
 
-    available_collections: List[CollectionResponse] = \
-        await get_avaliable_collections_uc.execute(user_id)
-
-    return [
-        CollectionShort(
-            collection_id=collection.collection_id,
-            name=collection.name,
-            description=collection.description
-        )
-        for collection in available_collections
-    ]
+        return [
+            CollectionShort(
+                collection_id=collection.collection_id,
+                name=collection.name,
+                description=collection.description
+            )
+            for collection in available_collections
+        ]
+    except Exception as exc:
+        raise handle_exception(exc) from None
 
 
 @router.post("/", response_model=CollectionShort,
@@ -62,7 +53,7 @@ async def get_collections(
 @inject
 async def create_collection(
     collection_data: CollectionCreate,
-    get_user_id_uc: FromDishka[GetUserIdUC],
+    register_user_uc: FromDishka[RegisterUserUC],
     check_admin_uc: FromDishka[CheckAdminUC],
     create_collection_uc: FromDishka[CreateCollectionUC]
 ):
@@ -70,35 +61,25 @@ async def create_collection(
     Создать новую коллекцию.
     """
     try:
-        user_id: UUID = await get_user_id_uc.execute(collection_data.telegram_id)
-    except ValueError as error:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(error)
-        ) from None
+        user_id = await get_user_id(None, collection_data, register_user_uc)
+        await check_admin_rights(user_id, check_admin_uc)
 
-    if not await check_admin_uc.execute(user_id):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="У вас нет прав на создание коллекции"
-        )
-
-    try:
-        collection: CollectionResponse = await create_collection_uc.execute(
+        collection = await create_collection_uc.execute(
             CreateCollectionRequest(
                 name=collection_data.name,
                 description=collection_data.description,
                 is_public=collection_data.is_public
             ),
-            user_id)
-    except Exception as exc:
-        return handle_exception(exc)
+            user_id
+        )
 
-    return CollectionShort(
-        collection_id=collection.collection_id,
-        name=collection.name,
-        description=collection.description
-    )
+        return CollectionShort(
+            collection_id=collection.collection_id,
+            name=collection.name,
+            description=collection.description
+        )
+    except Exception as exc:
+        raise handle_exception(exc) from None
 
 
 @router.delete("/{collection_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -106,7 +87,7 @@ async def create_collection(
 async def delete_collection(
     telegram_id: int,
     collection_id: int,
-    get_user_id_uc: FromDishka[GetUserIdUC],
+    register_user_uc: FromDishka[RegisterUserUC],
     check_admin_uc: FromDishka[CheckAdminUC],
     delete_collection_uc: FromDishka[DeleteCollectionUC]
 ):
@@ -114,23 +95,11 @@ async def delete_collection(
     Удалить коллекцию по ID.
     """
     try:
-        user_id: UUID = await get_user_id_uc.execute(telegram_id)
-    except ValueError as error:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(error)
-        ) from None
-
-    if not await check_admin_uc.execute(user_id):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="У вас нет прав на удаление коллекции"
-        )
-
-    try:
+        user_id = await get_user_id(telegram_id, None, register_user_uc)
+        await check_admin_rights(user_id, check_admin_uc)
         await delete_collection_uc.execute(collection_id, user_id)
     except Exception as exc:
-        return handle_exception(exc)
+        raise handle_exception(exc) from None
 
 
 @router.get("/{collection_id}", response_model=Collection)
@@ -138,33 +107,26 @@ async def delete_collection(
 async def get_collection(
     telegram_id: int,
     collection_id: int,
-    get_user_id_uc: FromDishka[GetUserIdUC],
+    register_user_uc: FromDishka[RegisterUserUC],
     get_collection_uc: FromDishka[GetCollectionUC]
 ):
     """
     Получить информацию о конкретной коллекции.
     """
     try:
-        user_id: UUID = await get_user_id_uc.execute(telegram_id)
-    except ValueError as error:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(error)
-        ) from None
+        user_id = await get_user_id(telegram_id, None, register_user_uc)
+        collection = await get_collection_uc.execute(collection_id, user_id)
 
-    try:
-        collection: CollectionResponse = await get_collection_uc.execute(collection_id, user_id)
+        return Collection(
+            collection_id=collection.collection_id,
+            name=collection.name,
+            description=collection.description,
+            document_count=collection.document_count,
+            is_public=collection.is_public,
+            created_at=collection.created_at
+        )
     except Exception as exc:
-        return handle_exception(exc)
-
-    return Collection(
-        collection_id=collection.collection_id,
-        name=collection.name,
-        description=collection.description,
-        document_count=collection.document_count,
-        is_public=collection.is_public,
-        created_at=None
-    )
+        raise handle_exception(exc) from None
 
 
 @router.patch("/{collection_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -172,7 +134,7 @@ async def get_collection(
 async def update_collection(
     collection_id: int,
     collection_data: CollectionUpdate,
-    get_user_id_uc: FromDishka[GetUserIdUC],
+    register_user_uc: FromDishka[RegisterUserUC],
     check_admin_uc: FromDishka[CheckAdminUC],
     update_collection_uc: FromDishka[UpdateCollectionUC]
 ):
@@ -180,27 +142,17 @@ async def update_collection(
     Обновить информацию о коллекции.
     """
     try:
-        user_id: UUID = await get_user_id_uc.execute(collection_data.telegram_id)
-    except ValueError as error:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(error)
-        ) from None
+        user_id = await get_user_id(None, collection_data, register_user_uc)
+        await check_admin_rights(user_id, check_admin_uc)
 
-    if not await check_admin_uc.execute(user_id):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="У вас нет прав на редактирование коллекции"
-        )
-
-    try:
         await update_collection_uc.execute(
             request=UpdateCollectionRequest(
                 collection_id=collection_id,
                 name=collection_data.name,
                 description=collection_data.description,
-                is_public=None
+                is_public=collection_data.is_public
             ),
-            user_id=user_id)
+            user_id=user_id
+        )
     except Exception as exc:
-        return handle_exception(exc)
+        raise handle_exception(exc) from None

@@ -1,7 +1,8 @@
+from datetime import datetime
 from typing import Any, Dict, Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class UpdateDocumentRequest(BaseModel):
@@ -18,4 +19,5 @@ class DocumentResponse(BaseModel):
     description: Optional[str]
     file_name: str
     file_size: int
-    metadata: Dict[str, Any]
+    created_at: datetime = Field(description="Дата создания")
+    payload: Dict[str, Any]

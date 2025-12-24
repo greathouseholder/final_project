@@ -2,9 +2,12 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 from uuid import UUID
 
-from app.src.core.domain.rdb_entities import User, DocumentCollection, Document
-from app.src.core.application.rdb.schemas.collection import CreateCollectionRequest, UpdateCollectionRequest
-from app.src.core.application.rdb.schemas.document import UpdateDocumentRequest
+from src.core.application.rdb.schemas.collection import (
+    CreateCollectionRequest,
+    UpdateCollectionRequest,
+)
+from src.core.application.rdb.schemas.document import UpdateDocumentRequest
+from src.core.domain.rdb_entities import Document, DocumentCollection, User
 
 
 class RDBRepository(ABC):
@@ -63,4 +66,12 @@ class RDBRepository(ABC):
 
     @abstractmethod
     async def delete_document(self, document_id: UUID) -> None:
+        pass
+
+    @abstractmethod
+    async def update_user(self, user_id: UUID, **updates) -> None:
+        pass
+
+    @abstractmethod
+    async def increment_document_count(self, collection_id: UUID) -> None:
         pass

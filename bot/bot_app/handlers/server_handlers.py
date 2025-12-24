@@ -40,10 +40,10 @@ async def view_dbs(callback: CallbackQuery) -> None:
                             parse_mode="Markdown"
                         )
     except aiohttp.ClientError as e:
-        await callback.message.answer(f"Ошибка подключения: {str(e)}")
+        await callback.message.answer("Ошибка подключения")
         await callback.answer()
     except Exception as e:
-        await callback.message.answer(f"Неизвестная ошибка: {str(e)}")
+        await callback.message.answer("Неизвестная ошибка")
         await callback.answer()
 
 #добавить новую коллекцию
@@ -62,18 +62,18 @@ async def add_collection_server(telegram_id: int,
                       },
                 timeout=aiohttp.ClientTimeout(total=10)
             ) as response:
+                data: Dict[str, int | str] = await response.json()
                 if response.status == 201:
-                    data: Dict[str, int | str] = response.json()
                     return f"Коллекция добавлена.\n Название: {data['name']}\n Описание: {data['description']}"
                 else:
-                    return f"Ошибка: {response.content['detail']}"
+                    return f"Ошибка: {data['detail']}"
     except aiohttp.ClientError as e:
-        return f"Ошибка подключения: {str(e)}"
+        return "Ошибка подключения"
     except Exception as e:
-        return f"Неизвестная ошибка: {str(e)}"
+        return "Неизвестная ошибка"
 
 #обновить информацию о коллекции
-async def update_coll(user_id: int, coll_id: int, name: str, desc: str):
+async def update_coll(user_id: int, coll_id: int, name: str, is_public: bool, desc: str):
     try:
         async with aiohttp.ClientSession() as session:
             async with session.patch(
@@ -81,14 +81,15 @@ async def update_coll(user_id: int, coll_id: int, name: str, desc: str):
                 json={
                         "telegram_id": user_id,
                         "title": name,
-                        "description": desc
+                        "description": desc,
+                        "is_public": is_public
                 },
                 timeout=aiohttp.ClientTimeout(total=30)) as response:
                 return await response.json()
     except aiohttp.ClientError as e:
-        return {"detail": f"Ошибка подключения: {str(e)}"}
+        return {"detail": f"Ошибка подключения"}
     except Exception as e:
-        return {"detail": f"Неизвестная ошибка: {str(e)}"}
+        return {"detail": "Неизвестная ошибка"}
 
 #добавить документ в коллекцию
 async def add_doc(coll_id: int, data: Dict, file_bytes: bytes, filename: str):
@@ -123,9 +124,9 @@ async def get_doc(user_id: int, coll_id: int, doc_id: int):
                 timeout=aiohttp.ClientTimeout(total=10)) as response:
                 return await response.json()
     except aiohttp.ClientError as e:
-        return {"detail": f"Ошибка подключения: {str(e)}"}
+        return {"detail": "Ошибка подключения"}
     except Exception as e:
-        return {"detail": f"Неизвестная ошибка: {str(e)}"}
+        return {"detail": "Неизвестная ошибка"}
     
 #изменить информацию о документе
 async def update_doc(user_id: int,
@@ -145,9 +146,9 @@ async def update_doc(user_id: int,
                 timeout=aiohttp.ClientTimeout(total=30)) as response:
                 return await response.json()
     except aiohttp.ClientError as e:
-        return {"detail": f"Ошибка подключения: {str(e)}"}
+        return {"detail": "Ошибка подключения"}
     except Exception as e:
-        return {"detail": f"Неизвестная ошибка: {str(e)}"}
+        return {"detail": "Неизвестная ошибка"}
 
 #удалить коллекцию
 async def delete_collection_server(collection_id: str, user_id: int) -> str:
@@ -162,9 +163,9 @@ async def delete_collection_server(collection_id: str, user_id: int) -> str:
                     status_text = detail["detail"]
         return status_text
     except aiohttp.ClientError as e:
-        return f"Ошибка подключения: {str(e)}"
+        return "Ошибка подключения"
     except Exception as e:
-        return f"Неизвестная ошибка: {str(e)}"
+        return "Неизвестная ошибка"
     
 #удалить документ из коллекции
 async def delete_doc(coll_id: int, doc_id: int, user_id: int) -> str:
@@ -179,14 +180,16 @@ async def delete_doc(coll_id: int, doc_id: int, user_id: int) -> str:
                     status_text = detail["detail"]
         return status_text
     except aiohttp.ClientError as e:
-        return f"Ошибка подключения: {str(e)}"
+        return "Ошибка подключения"
     except Exception as e:
-        return f"Неизвестная ошибка: {str(e)}"
+        return "Неизвестная ошибка"
     
 #список коллекций для создания клавиатуры
 async def view_dbs_internal(user_id: int) -> List[Dict[str, str]]:
     try:
         async with aiohttp.ClientSession() as session:
+            print(SERVER + API_V + f"/collections/?telegram_id={user_id}")
+            print(type(SERVER + API_V + f"/collections/?telegram_id={user_id}"))
             async with session.get(
                 SERVER + API_V + f"/collections/?telegram_id={user_id}",
                 timeout=aiohttp.ClientTimeout(total=10)
@@ -198,10 +201,10 @@ async def view_dbs_internal(user_id: int) -> List[Dict[str, str]]:
                     data = [{"error": "Ошибка сервера"}]
         return data
     except aiohttp.ClientError as e:
-        data = [{"error": f"Ошибка подключения: {str(e)}"}]
+        data = [{"error": "Ошибка подключения"}]
         return data
     except Exception as e:
-        data = [{"error": f"Неизвестная ошибка: {str(e)}"}]
+        data = [{"error": "Неизвестная ошибка"}]
         return data
 
 #список документов для создания клавиатуры
@@ -219,10 +222,10 @@ async def view_docs(user_id: int, coll_id: int):
                     data = [{"error": "Ошибка сервера"}]
         return data
     except aiohttp.ClientError as e:
-        data = [{"error": f"Ошибка подключения: {str(e)}"}]
+        data = [{"error": "Ошибка подключения"}]
         return data
     except Exception as e:
-        data = [{"error": f"Неизвестная ошибка: {str(e)}"}]
+        data = [{"error": "Неизвестная ошибка"}]
         return data
 
 #отправка rag-запроса
@@ -242,9 +245,9 @@ async def send_rag(collection_id: int, telegram_id: int, query_text: str):
                     return '', data
                 return data["content"], data["sources"]
     except aiohttp.ClientError as e:
-        return '', {"detail": f"Ошибка подключения: {str(e)}"}
+        return '', {"detail": "Ошибка подключения"}
     except Exception as e:
-        return '', {"detail": f"Неизвестная ошибка: {str(e)}"}
+        return '', {"detail": "Неизвестная ошибка"}
     
 #запрос на поиск документов
 async def search_docs(collection_id: int, telegram_id: int, number_of_sources: int, query_text: str):
@@ -262,9 +265,9 @@ async def search_docs(collection_id: int, telegram_id: int, number_of_sources: i
                 data = await response.json()
                 return data
     except aiohttp.ClientError as e:
-        return {"detail": f"Ошибка подключения: {str(e)}"}
+        return {"detail": "Ошибка подключения"}
     except Exception as e:
-        return {"detail": f"Неизвестная ошибка: {str(e)}"}
+        return {"detail": "Неизвестная ошибка"}
 
 #куплена ли подписка
 async def is_paid(user_id: int):
@@ -277,9 +280,9 @@ async def is_paid(user_id: int):
                 data = await response.json()
                 return data
     except aiohttp.ClientError as e:
-        return {"detail": f"Ошибка подключения: {str(e)}"}
+        return {"detail": "Ошибка подключения"}
     except Exception as e:
-        return {"detail": f"Неизвестная ошибка: {str(e)}"}
+        return {"detail": "Неизвестная ошибка"}
 
 #оплата прошла успешно
 async def subscription(user_id: int):
@@ -294,6 +297,6 @@ async def subscription(user_id: int):
             ) as response:  
                 pass
     except aiohttp.ClientError as e:
-        return {"detail": f"Ошибка подключения: {str(e)}"}
+        return {"detail": "Ошибка подключения"}
     except Exception as e:
-        return {"detail": f"Неизвестная ошибка: {str(e)}"}
+        return {"detail": "Неизвестная ошибка"}

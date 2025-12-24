@@ -1,7 +1,8 @@
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class CreateCollectionRequest(BaseModel):
@@ -23,3 +24,5 @@ class CollectionResponse(BaseModel):
     description: Optional[str]
     document_count: int
     is_public: bool
+    created_at: datetime = Field(description="Дата создания")
+

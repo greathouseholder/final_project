@@ -1,12 +1,15 @@
-from src.core.domain.document import CoreDocument
 from langchain_core.documents import Document
+
+from src.core.domain.document import CoreDocument
 
 
 class LangchainAdapter:
     @staticmethod
     def to_langchain(document: CoreDocument) -> Document:
-        return Document(page_content=document.text, metadata=document.metadata)
+        return Document(page_content=document.text,
+                        metadata=document.metadata)
 
     @staticmethod
     def from_langchain(document: Document) -> CoreDocument:
-        return CoreDocument(text=document.page_content, metadata=document.metadata)
+        return CoreDocument(text=document.page_content,
+                            metadata=document.metadata)

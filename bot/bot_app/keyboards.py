@@ -49,18 +49,21 @@ payment_keyboard = InlineKeyboardMarkup(inline_keyboard=[
 ])
 
 def create_pagination_keyboard(items: list,
-                               item_type: str = "collection",
+                               item_type: str,
                                page: int = 0,
                                items_per_page: int = 5) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     start = page * items_per_page
     end = start + items_per_page
     page_items = items[start:end]
+    item_type_full = "collection" if item_type == "c" else "document"
     for item in page_items:
+        _uuid = item.get(f'{item_type_full}_id')
         builder.button(
             text=f"{item.get('name', 'Без названия')[:30]}",
-            callback_data=f"select_{item_type}:{item.get(f'{item_type}_id', '')}"
+            callback_data=f"{item_type}:{str(_uuid)}"
         )
+
     builder.adjust(1) 
     
     navigation_cnt: int = 1
