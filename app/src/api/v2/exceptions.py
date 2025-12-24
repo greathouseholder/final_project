@@ -18,6 +18,8 @@ def handle_exception(exc: Exception) -> HTTPException:
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Файл с таким именем уже существует"
             )
+        case HTTPException():
+            raise exc
         case _:
             return HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

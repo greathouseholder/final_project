@@ -3,12 +3,20 @@ from aiogram.filters import BaseFilter
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 
+#просмотр коллекций
 class ViewCollections(StatesGroup):
     view = State()
 
+#добавление коллекции
 class AddNewcollection(StatesGroup):
     coll_name = State()
     coll_descr = State()
+    is_public = State()
+
+#изменение коллекции
+class UpdateCollection(StatesGroup):
+    coll_name = State()
+    coll_desc = State()
     is_public = State()
 
 #удаление коллекции
@@ -32,6 +40,11 @@ class AddDoc(StatesGroup):
     input_desc = State()
     input_url = State()
     send_file = State()
+
+#изменение документа
+class UpdateDocument(StatesGroup):
+    input_name = State()
+    input_desc = State()
 
 #удаление документа
 class DeleteDoc(StatesGroup):
