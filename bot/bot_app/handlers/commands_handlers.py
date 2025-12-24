@@ -2,6 +2,7 @@
 from aiogram import Router
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, FSInputFile
+from .server_handlers import is_alive
 
 from bot_app import keyboards as kb
 
@@ -22,6 +23,11 @@ async def cmd_call_saul(message: Message) -> None:
             performer="Unknown",
             title="Better Call Saul"
         )
+
+@router_commands.message(Command('health'))
+async def cmd_health(message: Message):
+    response = await is_alive()
+    print(response)
 
 @router_commands.message(Command('help'))
 async def cmd_help(message: Message) -> None:

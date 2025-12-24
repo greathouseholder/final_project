@@ -169,7 +169,8 @@ async def add_doc(message: Message, state: FSMContext):
         "telegram_id": message.from_user.id,
         "title": name,
         "description": descr,
-        "url":url
+        "url": url,
+        "collection_id": coll_id
     }
     response = sh.add_doc(coll_id, json, file_bytes, filename)
     if "detail" in response:
