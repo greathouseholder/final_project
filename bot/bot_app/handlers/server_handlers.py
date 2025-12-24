@@ -78,12 +78,13 @@ async def update_coll(user_id: int, coll_id: UUID, name: str, is_public: bool, d
     try:
         async with aiohttp.ClientSession() as session:
             async with session.patch(
-                SERVER + API_V + f"/collections/{coll_id}",
+                SERVER + API_V + f"/collections/one",
                 json={
                         "telegram_id": user_id,
                         "title": name,
                         "description": desc,
-                        "is_public": is_public
+                        "is_public": is_public,
+                        "collection_id": coll_id
                 },
                 timeout=aiohttp.ClientTimeout(total=30)) as response:
                 return await response.json()
@@ -120,8 +121,8 @@ async def add_doc(coll_id: UUID, data: Dict, file_bytes: bytes, filename: str):
 async def get_doc(user_id: int, coll_id: UUID, doc_id: UUID):
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.delete(
-                SERVER + API_V + f"/collections/{coll_id}/documents/{doc_id}/?telegram_id={user_id}",
+            async with session.get(
+                SERVER + API_V + f"/collections/{coll_id}/documents/{doc_id}/?telegram_id={user_id}&document_id={doc_id}",
                 timeout=aiohttp.ClientTimeout(total=10)) as response:
                 return await response.json()
     except aiohttp.ClientError as e:
@@ -142,7 +143,8 @@ async def update_doc(user_id: int,
                 json={
                         "telegram_id": user_id,
                         "title": name,
-                        "description": desc
+                        "description": desc,
+                        "document_id": doc_id
                 },
                 timeout=aiohttp.ClientTimeout(total=30)) as response:
                 return await response.json()
@@ -156,7 +158,7 @@ async def delete_collection_server(collection_id: UUID, user_id: int) -> str:
     try:
         async with aiohttp.ClientSession() as session:
             async with session.delete(
-                SERVER + API_V + f"/collections/{collection_id}/?telegram_id={user_id}",
+                SERVER + API_V + f"/collections/{collection_id}/?telegram_id={user_id}&collection_id={collection_id}",
                 timeout=aiohttp.ClientTimeout(total=10)) as response:
                 status_text: str = "success"
                 if response.status != 204:
@@ -173,7 +175,7 @@ async def delete_doc(coll_id: UUID, doc_id: UUID, user_id: int) -> str:
     try:
         async with aiohttp.ClientSession() as session:
             async with session.delete(
-                SERVER + API_V + f"/collections/{coll_id}/documents/{doc_id}/?telegram_id={user_id}",
+                SERVER + API_V + f"/collections/{coll_id}/documents/{doc_id}/?telegram_id={user_id}&document_id={doc_id}",
                 timeout=aiohttp.ClientTimeout(total=10)) as response:
                 status_text: str = "success"
                 if response.status != 204:
@@ -213,7 +215,7 @@ async def view_docs(user_id: int, coll_id: UUID):
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                SERVER + API_V + f"collections/{coll_id}/documents/?telegram_id={user_id}",
+                SERVER + API_V + f"collections/{coll_id}/documents/?telegram_id={user_id}&collection_id={coll_id}",
                 timeout=aiohttp.ClientTimeout(total=10)
             ) as response:    
                 data: List[Dict[str, str]] = []
@@ -237,7 +239,8 @@ async def send_rag(collection_id: UUID, telegram_id: int, query_text: str):
                 SERVER + API_V + f"/collections/{collection_id}/query",
                 json= {
                     "telegram_id": telegram_id,
-                    "query_text": query_text
+                    "query_text": query_text,
+                    "collection_id": collection_id
                 },
                 timeout=aiohttp.ClientTimeout(total=10)
             ) as response:  
@@ -257,7 +260,8 @@ async def search_docs(collection_id: UUID, telegram_id: int, number_of_sources: 
                 json= {
                     "telegram_id": telegram_id,
                     "number_of_sources": number_of_sources,
-                    "query_text": query_text
+                    "query_text": query_text,
+                    "collection_id": collection_id
                 },
                 timeout=aiohttp.ClientTimeout(total=10)
             ) as response:  
