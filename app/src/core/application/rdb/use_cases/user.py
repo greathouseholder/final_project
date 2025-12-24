@@ -8,8 +8,8 @@ class CheckAdminUC:
     def __init__(self, rdb_repo):
         self.rdb_repo = rdb_repo
 
-    async def execute(self, telegram_id: int) -> bool:
-        user = await self.rdb_repo.get_user_by_telegram_id(telegram_id)
+    async def execute(self, user_id: UUID) -> bool:
+        user = await self.rdb_repo.get_user_by_id(user_id)
         return user.role == "admin" if user else False
 
 
@@ -94,7 +94,5 @@ class RegisterUserUC:
             return user
         return await self.rdb_repo.create_user(
             telegram_id=telegram_id,
-            role="user",
-            is_paid=False,
-            attempt_count=0
+            role="user"
         )

@@ -15,24 +15,24 @@ services:
       timeout: 5s
       retries: 5
 
-  postgres:
-    image: postgres:16-alpine
-    container_name: goodman_postgres
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-app}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?error}
-      POSTGRES_DB: ${POSTGRES_DB:-rag_db}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - rag-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-app} -d ${POSTGRES_DB:-rag_db}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+#  postgres:
+#    image: postgres:16-alpine
+#    container_name: goodman_postgres
+#    environment:
+#      POSTGRES_USER: ${POSTGRES_USER:-app}
+#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?error}
+#      POSTGRES_DB: ${POSTGRES_DB:-rag_db}
+#    ports:
+#      - "5432:5432"
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
+#    networks:
+#      - rag-network
+#    healthcheck:
+#      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-app} -d ${POSTGRES_DB:-rag_db}"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
 
   backend:
     build:
@@ -50,11 +50,11 @@ services:
       QDRANT_HOST: qdrant
       QDRANT_PORT: 6333
 
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: 5432
-      POSTGRES_USER: ${POSTGRES_USER:-app}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?error}
-      POSTGRES_DB: ${POSTGRES_DB:-rag_db}
+#      POSTGRES_HOST: postgres
+#      POSTGRES_PORT: 5432
+#      POSTGRES_USER: ${POSTGRES_USER:-app}
+#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?error}
+#      POSTGRES_DB: ${POSTGRES_DB:-rag_db}
 
       GIGACHAT_CREDENTIALS: ${GIGACHAT_CREDENTIALS:-}
       GIGACHAT_SCOPE: ${GIGACHAT_SCOPE:-GIGACHAT_API_PERS}
@@ -63,16 +63,16 @@ services:
     depends_on:
       qdrant:
         condition: service_healthy
-      postgres:
-        condition: service_healthy
+#      postgres:
+#        condition: service_healthy
     networks:
       - rag-network
 
 volumes:
   qdrant_data:
     driver: local
-  postgres_data:
-    driver: local
+#  postgres_data:
+#    driver: local
 
 networks:
   rag-network:
