@@ -14,7 +14,7 @@ async def middleware(request, call_next):
     return await log_request(request, call_next)
 
 
-@app.get("health")
+@app.get("/health")
 async def is_alive():
     return {"success": "ok"}
 
