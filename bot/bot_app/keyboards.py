@@ -49,7 +49,7 @@ payment_keyboard = InlineKeyboardMarkup(inline_keyboard=[
 ])
 
 def create_pagination_keyboard(items: list,
-                               item_type: str,
+                               item_type: str = "c",
                                page: int = 0,
                                items_per_page: int = 5) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()

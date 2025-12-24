@@ -89,13 +89,12 @@ async def delete_db(callback: CallbackQuery, state: FSMContext):
     data: Dict = await state.get_data()
     coll_id: UUID = data.get("id")
     user_id: int = callback.from_user.id
-    '''response = await sh.delete_collection_server(coll_id, user_id)
+    response = await sh.delete_collection_server(coll_id, user_id)
     await callback.answer()
     if response == "success":
         await callback.message.answer(f"Коллекция успешно удалена")
     else:
-        await callback.message.answer(f"Ошибка: {response}")'''
-    await callback.message.answer(f"Удалена коллекция id={coll_id}")
+        await callback.message.answer(f"Ошибка: {response}")
     await state.clear()
 
 #изменить коллекцию

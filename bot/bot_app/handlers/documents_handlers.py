@@ -2,6 +2,7 @@ from typing import Dict
 from aiogram import Router, F
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
+from uuid import UUID
 
 from . import server_handlers as sh
 import bot_app.keyboards as kb
@@ -15,9 +16,9 @@ documents_router: Router = Router()
 async def view_docs(callback: CallbackQuery, state: FSMContext):
     user_id: int = callback.from_user.id
     data = await state.get_data()
-    coll_id: int = data.get("id")
-    docs = await sh.view_docs(user_id, coll_id) #не тест
-    #docs: Dict = DOCUMENTS_EXAMPLE #тест
+    coll_id: UUID = data.get("id")
+    #docs = await sh.view_docs(user_id, coll_id) #не тест
+    docs: Dict = DOCUMENTS_EXAMPLE #тест
     await state.update_data(documents=docs)
     if len(docs) == 0:
         await callback.answer()
@@ -28,24 +29,24 @@ async def view_docs(callback: CallbackQuery, state: FSMContext):
         await callback.message.answer(docs[0]["error"])
         await state.clear()
     else:
-        keyboard = kb.create_pagination_keyboard(docs, "document")
+        keyboard = kb.create_pagination_keyboard(docs, "d")
         await state.update_data(docs=docs, current_page=0)
         await callback.message.edit_text('Вот все документы из коллекции', reply_markup=keyboard)
 
 #открыть меню действий с документом (посмотреть информацию/изменить)
-@documents_router.callback_query(st.StateAndCallbackStartsWithFilter("select_document:",
+@documents_router.callback_query(st.StateAndCallbackStartsWithFilter("d:",
                                                                      st.ViewCollections.view))
 async def document_menu(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     documents = data.get('documents')
-    doc_id: int = callback.data.split(':')[1]
+    doc_id: UUID = UUID(callback.data.split(':')[1])
     aim_doc = {
         "document_id": -100,
         "name": "None",
         "collection_id": -100
     }
     for doc in documents:
-        if int(doc.get('document_id')) == int(doc_id):
+        if str(doc.get('document_id')) == str(doc_id):
             aim_doc = doc
             break
     await state.update_data(aim_doc=aim_doc)
@@ -59,8 +60,8 @@ async def view_doc_info(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     aim_doc = data.get("aim_doc")
     await callback.answer()
-    doc_id: int = int(aim_doc.get('document_id', -1))
-    coll_id: int = int(aim_doc.get('collection_id', -1))
+    doc_id: UUID = UUID(aim_doc.get('document_id', -1))
+    coll_id: UUID = UUID(aim_doc.get('collection_id', -1))
     user_id: int = callback.from_user.id
     response = sh.get_doc(user_id, coll_id, doc_id)
     if 'detail' in response:
@@ -98,8 +99,8 @@ async def update_doc(message: Message, state: FSMContext):
     desc = message.text
     name = data.get("name")
     doc = data.get("aim_doc")
-    doc_id = doc.get("document_id")
-    coll_id = doc.get("collection_id")
+    doc_id = UUID(doc.get("document_id"))
+    coll_id = UUID(doc.get("collection_id"))
     user_id = message.from_user.id
     response = await sh.update_doc(user_id, coll_id, doc_id, name, desc)
     if 'detail' in response:
@@ -112,7 +113,7 @@ async def update_doc(message: Message, state: FSMContext):
 @documents_router.callback_query(st.StateAndCallbackFilter("add_doc", st.ViewCollections.view))
 async def add_doc_name(callback: CallbackQuery, state: FSMContext):
     data: Dict = await state.get_data()
-    coll_id: int = data.get("id", "-1")
+    coll_id: UUID = UUID(data.get("id", "-1"))
     await state.set_state(st.AddDoc.input_name)
     await state.update_data(id=coll_id)
     await callback.message.edit_text("Введите название документа",
@@ -155,7 +156,7 @@ async def add_doc_file(message: Message, state: FSMContext):
 @documents_router.message(st.AddDoc.send_file)
 async def add_doc(message: Message, state: FSMContext):
     data: Dict = await state.get_data()
-    coll_id: int = data.get("id", "-1")
+    coll_id: UUID = UUID(data.get("id", "-1"))
     name: str = data.get("name", "Без названия")
     descr: str = data.get("desc", "Без описания")
     url: str = data.get("url", "Без ссылки")
@@ -182,7 +183,7 @@ async def add_doc(message: Message, state: FSMContext):
 async def choose_doc_to_del(callback: CallbackQuery, state: FSMContext):
     user_id: int = callback.from_user.id
     data = await state.get_data()
-    coll_id: int = data.get("id")
+    coll_id: UUID = UUID(data.get("id"))
     await state.set_state(st.DeleteDoc.choose_doc)
     await state.update_data(coll_id=coll_id)
     #docs = await sh.view_docs(user_id, coll_id) #не тест
@@ -197,18 +198,18 @@ async def choose_doc_to_del(callback: CallbackQuery, state: FSMContext):
         await callback.message.answer(docs[0]["error"])
         await state.clear()
     else:
-        keyboard = kb.create_pagination_keyboard(docs, "document")
+        keyboard = kb.create_pagination_keyboard(docs, "d")
         await state.update_data(docs=docs, current_page=0)
         await callback.message.edit_text('Выберите документ для удаления', reply_markup=keyboard)
 
 #непосредственно удаление
-@documents_router.callback_query(st.StateAndCallbackStartsWithFilter("select_document:",
+@documents_router.callback_query(st.StateAndCallbackStartsWithFilter("d:",
                                                                      st.DeleteDoc.choose_doc))
 async def delete_doc(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
-    coll_id: int = data.get("id", -1)
+    coll_id: UUID = UUID(data.get("id", -1))
     user_id: int = callback.from_user.id
-    doc_id: int = callback.data.split(":")[1]
+    doc_id: UUID = UUID(callback.data.split(":")[1])
     await callback.answer("")
     response = await sh.delete_doc(coll_id, doc_id, user_id)
     if response == "success":
