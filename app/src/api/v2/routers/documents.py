@@ -5,7 +5,7 @@ import chardet
 import pdfplumber
 from dishka.integrations.fastapi import FromDishka, inject
 from docx import Document as Document_docx
-from fastapi import APIRouter, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, File, HTTPException, UploadFile, status, Form
 from result import Result
 
 from src.api.v2.exceptions import handle_exception
@@ -64,14 +64,18 @@ async def upload_document(
     register_user_uc: FromDishka[RegisterUserUC],
     check_admin_uc: FromDishka[CheckAdminUC],
     loading_uc: FromDishka[LoadingUC],
-    metadata: UploadDocumentRequest,
+    telegram_id: int = Form(...),
+    collection_id: UUID = Form(...),
+    title: str = Form(...),
+    description: str | None = Form(None),
+    url: str | None = Form(None),
     file: UploadFile = File(...)
 ):
     """
     Загрузить новый документ.
     """
     try:
-        user_id = await get_user_id(None, metadata, register_user_uc)
+        user_id = await get_user_id(telegram_id, None, register_user_uc)
         await check_admin_rights(user_id, check_admin_uc)
 
         allowed_extensions = ['.txt', '.pdf', '.doc', '.docx']
@@ -103,26 +107,31 @@ async def upload_document(
                 text = content.decode('utf-8', errors='replace')
         elif f'.{file_extension}' == '.pdf':
             content = await file.read()
-            with pdfplumber.open(content) as pdf:
+            with pdfplumber.open(content.decode()) as pdf:
                 pages = [page.extract_text() for page in pdf.pages]
                 text = '\n'.join(pages)
         elif f'.{file_extension}' in ['.doc', '.docx']:
             content = await file.read()
             if f'.{file_extension}' == '.docx':
-                doc = Document_docx(content)
+                doc = Document_docx(content.decode())
                 text = '\n'.join([para.text for para in doc.paragraphs])
             else:
                 raise HTTPException(
                     status_code=status.HTTP_501_NOT_IMPLEMENTED,
                     detail="На данный момент файлы .doc не поддерживаются."
                 )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Bad request"
+            )
 
         document = CoreDocument(
             text=text,
             metadata={
-                "title": metadata.title,
-                "description": metadata.description,
-                "url": metadata.url,
+                "title": title,
+                "description": description,
+                "url": url,
                 "filename": file.filename,
                 "filesize": int(round(file_size / (1024 * 1024), 1))
             }
@@ -131,8 +140,8 @@ async def upload_document(
 
         result: Result[str, str] = await loading_uc.execute(
             request=loading_request,
-            collection_id=metadata.collection_id,
-            title=metadata.title,
+            collection_id=collection_id,
+            title=title,
             file_name=file.filename,
             file_size=file_size
         )
@@ -147,8 +156,8 @@ async def upload_document(
 
         return DocumentShort(
             document_id=document_id,
-            collection_id=metadata.collection_id,
-            name=metadata.title
+            collection_id=collection_id,
+            name=title
         )
     except Exception as exc:
         raise handle_exception(exc) from None
