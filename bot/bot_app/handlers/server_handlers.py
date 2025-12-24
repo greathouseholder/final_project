@@ -73,12 +73,25 @@ async def add_collection_server(telegram_id: int,
     #except Exception as e:
         return "Неизвестная ошибка"
 
+#посмотреть информацию о коллекции
+async def get_collection(user_id: int, coll_id: UUID):
+    try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(
+                    SERVER + API_V + f"/collections/one/?telegram_id={user_id}&collection_id={coll_id}",
+                    timeout=aiohttp.ClientTimeout(total=30)) as response:
+                    return await response.json()
+    except aiohttp.ClientError:
+        return {"detail": "Ошибка подключения"}
+    except Exception:
+        return {"detail": "Неизвестная ошибка"}
+
 #обновить информацию о коллекции
 async def update_coll(user_id: int, coll_id: UUID, name: str, is_public: bool, desc: str):
     try:
         async with aiohttp.ClientSession() as session:
             async with session.patch(
-                SERVER + API_V + f"/collections/one",
+                SERVER + API_V + "/collections/one",
                 json={
                         "telegram_id": user_id,
                         "title": name,

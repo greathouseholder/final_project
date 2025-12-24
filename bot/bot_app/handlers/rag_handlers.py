@@ -9,7 +9,7 @@ from uuid import UUID
 from . import server_handlers as sh
 from bot_app import states as st
 import bot_app.keyboards as kb
-from config import COLLECTION_EXAMPLE #коллекция для тестирования
+#from config import COLLECTION_EXAMPLE #коллекция для тестирования
 
 rag_router: Router = Router()
 

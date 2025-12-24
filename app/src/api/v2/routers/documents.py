@@ -34,7 +34,7 @@ MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
 @inject
 async def get_documents(
     telegram_id: int,
-    collection_id: int,
+    collection_id: UUID,
     register_user_uc: FromDishka[RegisterUserUC],
     get_avaliable_documents_uc: FromDishka[GetAvailableDocumentsUC]
 ):
@@ -61,7 +61,6 @@ async def get_documents(
              status_code=status.HTTP_201_CREATED)
 @inject
 async def upload_document(
-    collection_id: UUID,
     register_user_uc: FromDishka[RegisterUserUC],
     check_admin_uc: FromDishka[CheckAdminUC],
     loading_uc: FromDishka[LoadingUC],
@@ -132,7 +131,7 @@ async def upload_document(
 
         result: Result[str, str] = await loading_uc.execute(
             request=loading_request,
-            collection_id=collection_id,
+            collection_id=metadata.collection_id,
             title=metadata.title,
             file_name=file.filename,
             file_size=file_size
@@ -148,7 +147,7 @@ async def upload_document(
 
         return DocumentShort(
             document_id=document_id,
-            collection_id=collection_id,
+            collection_id=metadata.collection_id,
             name=metadata.title
         )
     except Exception as exc:
@@ -158,9 +157,8 @@ async def upload_document(
 @router.delete("/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
 @inject
 async def delete_document(
-    collection_id: int,
     telegram_id: int,
-    document_id: int,
+    document_id: UUID,
     register_user_uc: FromDishka[RegisterUserUC],
     check_admin_uc: FromDishka[CheckAdminUC],
     delete_document_uc: FromDishka[DeleteDocumentUC]
@@ -180,7 +178,6 @@ async def delete_document(
 @inject
 async def get_document(
     telegram_id: int,
-    collection_id: int,
     document_id: int,
     register_user_uc: FromDishka[RegisterUserUC],
     get_document_uc: FromDishka[GetDocumentUC]
@@ -208,8 +205,6 @@ async def get_document(
 @router.patch("/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
 @inject
 async def update_document(
-    collection_id: int,
-    document_id: int,
     document_data: DocumentUpdate,
     register_user_uc: FromDishka[RegisterUserUC],
     check_admin_uc: FromDishka[CheckAdminUC],
@@ -223,7 +218,7 @@ async def update_document(
         await check_admin_rights(user_id, check_admin_uc)
 
         update_document_request = UpdateDocumentRequest(
-            document_id=document_id,
+            document_id=document_data.document_id,
             title=document_data.title
         )
 

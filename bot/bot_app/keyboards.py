@@ -20,7 +20,8 @@ collections_actions_menu = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="Посмотреть документы", callback_data="view_docs")],
     [InlineKeyboardButton(text="Удалить коллекцию", callback_data="delete_db")],
     [InlineKeyboardButton(text="Добавить документ в коллекцию", callback_data="add_doc")],
-    [InlineKeyboardButton(text="Изменить коллекцию", callback_data='update_coll')]
+    [InlineKeyboardButton(text="Изменить коллекцию", callback_data='update_coll')],
+    [InlineKeyboardButton(text="Получить информацию о коллекции", callback_data='view_collection')]
 ])
 
 number_of_sources = InlineKeyboardMarkup(inline_keyboard=[

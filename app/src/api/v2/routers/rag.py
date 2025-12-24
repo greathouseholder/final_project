@@ -1,4 +1,5 @@
 from typing import List
+from uuid import UUID
 
 from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, HTTPException, status
@@ -23,7 +24,6 @@ router = APIRouter(tags=["RAG"])
 @router.post("/collections/{collection_id}/query")
 @inject
 async def query_rag(
-    collection_id: int,
     query_data: SearchRequest,
     generate_answer_uc: FromDishka[AnswerUC],
     register_user_uc: FromDishka[RegisterUserUC],
@@ -50,7 +50,7 @@ async def query_rag(
             LLMRequest(
                 query=query_data.query_text,
                 model="Gigachat",
-                collection_id=collection_id
+                collection_id=query_data.collection_id
             )
         )
 
@@ -66,7 +66,6 @@ async def query_rag(
              response_model=List[Document])
 @inject
 async def search_in_collection(
-    collection_id: int,
     search_data: SearchRequest,
     search_documents_uc: FromDishka[SearchUC],
     register_user_uc: FromDishka[RegisterUserUC],
@@ -92,7 +91,7 @@ async def search_in_collection(
         results = await search_documents_uc.execute(SearchRequestForUseCase(
             query=search_data.query_text,
             model="GigaChat",
-            collection_id=collection_id,
+            collection_id=search_data.collection_id,
             top_k=search_data.number
         ))
 
