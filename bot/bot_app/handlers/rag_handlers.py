@@ -17,8 +17,8 @@ rag_router: Router = Router()
 @rag_router.callback_query(F.data == 'RAG_query')
 async def rag_choose_coll(callback: CallbackQuery, state: FSMContext):
     await state.set_state(st.InputQuery.choose_coll)
-    collections = COLLECTION_EXAMPLE #тест
-    #collections: List[Dict[str, str]] = await sh.view_dbs_internal(callback.from_user.id) #не тест
+    #collections = COLLECTION_EXAMPLE #тест
+    collections: List[Dict[str, str]] = await sh.view_dbs_internal(callback.from_user.id) #не тест
     if len(collections) == 0:
         await callback.answer()
         await callback.message.answer("Список коллекций пуст")
@@ -56,14 +56,14 @@ async def rag_query(message: Message, state: FSMContext):
     await state.update_data(query=message.text)
     data = await state.get_data()
     query = data.get('query')
-    coll_id = UUID(data.get('coll_id'))
+    coll_id = data.get('coll_id')
     user_id = message.from_user.id
-    response, sources = await sh.send_rag(coll_id, user_id, query)
-    if "detail" in sources:
-        await message.answer(sources.get("detail"))
+    response = await sh.send_rag(coll_id, user_id, query)
+    if "detail" in response:
+        await message.answer(str(response.get("detail")))
     else:
-        await message.answer(response)
-        json_str = json.dumps(sources, indent=2, ensure_ascii=False)
+        await message.answer(response.get('content'))
+        json_str = json.dumps(response.get('sources'), indent=2, ensure_ascii=False)
         json_bytes = json_str.encode('utf-8')
         await message.answer_document(
             document=BufferedInputFile(

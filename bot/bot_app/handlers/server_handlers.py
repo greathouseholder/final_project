@@ -242,13 +242,11 @@ async def send_rag(collection_id: UUID, telegram_id: int, query_text: str):
                 timeout=aiohttp.ClientTimeout(total=10)
             ) as response:  
                 data = await response.json()
-                if "detail" in data:
-                    return '', data
-                return data["content"], data["sources"]
-    except aiohttp.ClientError as e:
-        return '', {"detail": "Ошибка подключения"}
-    except Exception as e:
-        return '', {"detail": "Неизвестная ошибка"}
+                return data
+    except aiohttp.ClientError:
+        return {"detail": "Ошибка подключения"}
+    except Exception:
+        return {"detail": "Неизвестная ошибка"}
     
 #запрос на поиск документов
 async def search_docs(collection_id: UUID, telegram_id: int, number_of_sources: int, query_text: str):
@@ -297,6 +295,19 @@ async def subscription(user_id: int):
                 timeout=aiohttp.ClientTimeout(total=10)
             ) as response:  
                 pass
+    except aiohttp.ClientError as e:
+        return {"detail": "Ошибка подключения"}
+    except Exception as e:
+        return {"detail": "Неизвестная ошибка"}
+    
+async def is_alive():
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                SERVER + API_V + "/health",
+                timeout=aiohttp.ClientTimeout(total=10)
+            ) as response:  
+                return response
     except aiohttp.ClientError as e:
         return {"detail": "Ошибка подключения"}
     except Exception as e:

@@ -9,7 +9,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 @pytest.fixture
 def bot() -> MagicMock:
     """Мок бота"""
-    mock_bot = MagicMock(spec=Bot)
+    mock_bot = AsyncMock(spec=Bot)
     mock_bot.id = 123456789
     return mock_bot
 
@@ -50,6 +50,10 @@ def state(bot, storage, user, chat) -> FSMContext:
         user_id=user.id
     )
     return FSMContext(storage=storage, key=key)
+
+@pytest.fixture
+async def fsm_context(storage):
+    return FSMContext(storage=storage, key="test_key")
 
 @pytest.fixture
 def message(user, chat, bot) -> MagicMock:
