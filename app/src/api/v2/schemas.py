@@ -44,6 +44,7 @@ class BaseRequest(BaseModel):
 
 
 class UploadDocumentRequest(BaseRequest):
+    collection_id: UUID = Field(..., description="ID коллекции")
     title: str = Field(..., min_length=1, max_length=255,
                        description="Название документа")
     description: Optional[str] = Field(
@@ -75,6 +76,7 @@ class DocumentCreate(BaseRequest):
 
 
 class DocumentUpdate(BaseRequest):
+    document_id: UUID = Field(..., description="ID коллекции")
     title: Optional[str] = Field(
         None, min_length=1, max_length=255, description="Новое название")
     description: Optional[str] = Field(
@@ -87,6 +89,6 @@ class QueryRequest(BaseRequest):
 
 class SearchRequest(BaseRequest):
     collection_id: UUID = Field(..., description="ID коллекции")
-    number: int = Field(3, ge=1, le=10, description="Количество результатов")
+    number: Optional[int] = Field(default=5, ge=1, le=10, description="Количество результатов")
     query_text: str = Field(..., min_length=1,
                             description="Текст поискового запроса")

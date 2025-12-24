@@ -1,6 +1,7 @@
 import logging
 import time
 from logging.handlers import RotatingFileHandler
+from pathlib import Path
 
 from fastapi import HTTPException, Request
 
@@ -14,8 +15,11 @@ console_handler = logging.StreamHandler()
 console_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
 
+log_dir = Path(__file__).parent.parent.parent / "shared" / "logs"
+log_dir.mkdir(parents=True, exist_ok=True)
+
 file_handler = RotatingFileHandler(
-    filename='src/shared/logs/api.log',
+    filename=log_dir / 'api.log',
     maxBytes=10 * 1024 * 1024,
     backupCount=5,
     encoding='utf-8'

@@ -6,7 +6,6 @@ from src.core.application.rdb.schemas.collection import (
     CreateCollectionRequest,
     UpdateCollectionRequest,
 )
-from src.core.domain.rdb_entities import DocumentCollection
 
 
 class GetAvailableCollectionsUC:

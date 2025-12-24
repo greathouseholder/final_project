@@ -7,7 +7,7 @@ from uuid import UUID
 from . import server_handlers as sh
 import bot_app.keyboards as kb
 from bot_app import states as st
-from config import DOCUMENTS_EXAMPLE
+#from config import DOCUMENTS_EXAMPLE
 
 documents_router: Router = Router()
 
@@ -187,8 +187,8 @@ async def choose_doc_to_del(callback: CallbackQuery, state: FSMContext):
     coll_id: UUID = UUID(data.get("id"))
     await state.set_state(st.DeleteDoc.choose_doc)
     await state.update_data(coll_id=coll_id)
-    #docs = await sh.view_docs(user_id, coll_id) #не тест
-    docs: Dict = DOCUMENTS_EXAMPLE #тест
+    docs = await sh.view_docs(user_id, coll_id) #не тест
+    # docs: Dict = DOCUMENTS_EXAMPLE #тест
     await state.update_data(documents=docs)
     if len(docs) == 0:
         await callback.answer()

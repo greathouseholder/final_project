@@ -4,11 +4,12 @@ from aiogram import F, Router
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 from uuid import UUID
+from datetime import datetime
 
 from . import server_handlers as sh
 import bot_app.keyboards as kb
 from bot_app import states as st
-from config import COLLECTION_EXAMPLE #коллекция для тестирования
+#from config import COLLECTION_EXAMPLE #коллекция для тестирования
 
 collections_router: Router = Router()
 
@@ -61,8 +62,8 @@ async def set_is_public(callback: CallbackQuery, state: FSMContext):
 @collections_router.callback_query(F.data == "collections_actions")
 async def collections_actions(callback: CallbackQuery, state: FSMContext):
     await state.set_state(st.ViewCollections.view)
-    collections = COLLECTION_EXAMPLE #тест
-    #collections: List[Dict[str, str]] = await sh.view_dbs_internal(callback.from_user.id) #не тест
+    #collections = COLLECTION_EXAMPLE #тест
+    collections: List[Dict[str, str]] = await sh.view_dbs_internal(callback.from_user.id) #не тест
     if len(collections) == 0:
         await callback.answer()
         await callback.message.answer("Список коллекций пуст")
@@ -82,6 +83,27 @@ async def other_actions(callback: CallbackQuery, state: FSMContext):
     await state.update_data(id=UUID(callback.data.split(":")[1]))
     await callback.answer()
     await callback.message.answer("Выберите действие: ", reply_markup=kb.collections_actions_menu)
+
+#посмотреть информацию о коллекции
+@collections_router.callback_query(F.data == 'view_collection')
+async def view_coll_name(callback: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    await callback.answer()
+    coll_id: UUID = data.get('id')
+    user_id: int = callback.from_user.id
+    response = await sh.get_collection(user_id, coll_id)
+    if "detail" in response:
+        await callback.message.answer(f'Ошибка: {str(response.get('detail'))}')
+    else:
+        created_at: datetime = response.get('created_at')
+        iso_created_at: str = created_at.isoformat()
+        is_public: bool = response.get('is_public')
+        await callback.message.answer(f"<b> {response.get('name', -1)} </b> \n \n"
+                                    f"Описание: {response.get('description', 'без описания')}\n"
+                                    f"Время создания: {iso_created_at}\n"
+                                    f"Количество документов: {response.get('document_count')}\n"
+                                    f"Публичная: {'да' if is_public else 'нет'}\n")
+
 
 #удалить коллекцию
 @collections_router.callback_query(st.StateAndCallbackFilter("delete_db", st.ViewCollections.view))
