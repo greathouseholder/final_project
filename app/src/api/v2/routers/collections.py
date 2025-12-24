@@ -1,4 +1,5 @@
 from typing import List
+from uuid import UUID
 
 from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, status
@@ -86,7 +87,7 @@ async def create_collection(
 @inject
 async def delete_collection(
     telegram_id: int,
-    collection_id: int,
+    collection_id: UUID,
     register_user_uc: FromDishka[RegisterUserUC],
     check_admin_uc: FromDishka[CheckAdminUC],
     delete_collection_uc: FromDishka[DeleteCollectionUC]
@@ -102,11 +103,11 @@ async def delete_collection(
         raise handle_exception(exc) from None
 
 
-@router.get("/{collection_id}", response_model=Collection)
+@router.get("/one", response_model=Collection)
 @inject
 async def get_collection(
     telegram_id: int,
-    collection_id: int,
+    collection_id: UUID,
     register_user_uc: FromDishka[RegisterUserUC],
     get_collection_uc: FromDishka[GetCollectionUC]
 ):
@@ -129,10 +130,9 @@ async def get_collection(
         raise handle_exception(exc) from None
 
 
-@router.patch("/{collection_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.patch("/one", status_code=status.HTTP_204_NO_CONTENT)
 @inject
 async def update_collection(
-    collection_id: int,
     collection_data: CollectionUpdate,
     register_user_uc: FromDishka[RegisterUserUC],
     check_admin_uc: FromDishka[CheckAdminUC],
@@ -147,7 +147,7 @@ async def update_collection(
 
         await update_collection_uc.execute(
             request=UpdateCollectionRequest(
-                collection_id=collection_id,
+                collection_id=collection_data.collection_id,
                 name=collection_data.name,
                 description=collection_data.description,
                 is_public=collection_data.is_public
