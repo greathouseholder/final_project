@@ -107,22 +107,37 @@ async def update_coll(user_id: int, coll_id: UUID, name: str, is_public: bool, d
         return {"detail": "Неизвестная ошибка"}
 
 #добавить документ в коллекцию
-async def add_doc(coll_id: UUID, data: Dict, file_bytes: bytes, filename: str):
+async def add_doc(coll_id: str, user_id: int, title: str,
+                  description: str, url: str, file_bytes: bytes, filename: str):
      async with aiohttp.ClientSession() as session:
         form_data = aiohttp.FormData()
         form_data.add_field(
-            'metadata',
-            json.dumps(data, ensure_ascii=False),
-            content_type='application/json'
+            'collection_id',
+            coll_id
         )
-
+        form_data.add_field(
+            'title',
+            title
+        )
+        form_data.add_field(
+            'telegram_id',
+            user_id
+        )
+        form_data.add_field(
+            'description',
+            description
+        )
+        form_data.add_field(
+            'url',
+            url
+        )
         form_data.add_field(
             'file',
             file_bytes,
             filename=filename,
             content_type='text/plain'
         )
-        
+    
         async with session.post(
             SERVER + API_V + f"/collections/{coll_id}/documents",
             data=form_data,
