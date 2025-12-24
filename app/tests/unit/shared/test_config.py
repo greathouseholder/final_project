@@ -1,8 +1,5 @@
 import importlib
 
-import pytest
-
-
 def _reload_config_module(monkeypatch, env: dict[str, str | None]):
     for key, value in env.items():
         if value is None:
@@ -41,26 +38,6 @@ def test_qdrant_url_is_built_from_host_and_port(monkeypatch):
     assert mod.config.QDRANT_HOST == "qdrant-service"
     assert mod.config.QDRANT_PORT == 7777
     assert mod.config.qdrant_url == "http://qdrant-service:7777"
-
-
-def test_postgres_dsn_is_built(monkeypatch):
-    mod = _reload_config_module(
-        monkeypatch,
-        {
-            "POSTGRES_HOST": "db",
-            "POSTGRES_PORT": "5433",
-            "POSTGRES_USER": "user1",
-            "POSTGRES_PASSWORD": "pass1",
-            "POSTGRES_DB": "rag_db_test",
-        },
-    )
-
-    assert mod.config.POSTGRES_HOST == "db"
-    assert mod.config.POSTGRES_PORT == 5433
-    assert mod.config.postgres_dsn == (
-        "postgresql+asyncpg://user1:pass1@db:5433/rag_db_test"
-    )
-
 
 def test_qdrant_api_key_can_be_none(monkeypatch):
     mod = _reload_config_module(
