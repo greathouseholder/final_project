@@ -156,7 +156,7 @@ async def add_doc_file(message: Message, state: FSMContext):
 @documents_router.message(st.AddDoc.send_file)
 async def add_doc(message: Message, state: FSMContext):
     data: Dict = await state.get_data()
-    coll_id: UUID = UUID(data.get("id", "-1"))
+    coll_id: UUID = data.get("id")
     name: str = data.get("name", "Без названия")
     descr: str = data.get("desc", "Без описания")
     url: str = data.get("url", "Без ссылки")
@@ -170,7 +170,7 @@ async def add_doc(message: Message, state: FSMContext):
         "title": name,
         "description": descr,
         "url": url,
-        "collection_id": coll_id
+        "collection_id": str(coll_id)
     }
     response = await sh.add_doc(coll_id, json, file_bytes, filename)
     if "detail" in response:
